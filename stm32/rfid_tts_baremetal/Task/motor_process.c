@@ -135,7 +135,7 @@ void Motor_Process(void)
                 Motor_ApplySpeed(motor_control.target_speed);
             }
             /* 绝对停车检查（电位器/上限） */
-            if( (t >= motor_control.stop_time) || (t >= 1000UL*1000UL) )
+            if( (t >= motor_control.stop_time) || (t >= MOTOR_MAX_RUN_TIME_MS) )
             {
                 motor_control.state = MOTOR_STATE_STOP;
                 Motor_ApplySpeed(0);

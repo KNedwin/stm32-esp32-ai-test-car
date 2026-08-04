@@ -53,6 +53,7 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
+  HAL_UART_Receive_IT( &huart1, (uint8_t *)&card_res, 1 );  /* 先使能接收：清 9600 期乱码字节，防 ORE 溢出锁死读卡 */
   SetBound115200();                                          /* 命令读卡模块切换到115200 */
   while( !__HAL_UART_GET_FLAG( &huart1, UART_FLAG_TC ) );    /* 等待发送完成 */
   huart1.Init.BaudRate = 115200;                             /* 本机串口同步改为115200 */

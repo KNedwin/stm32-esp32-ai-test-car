@@ -658,10 +658,9 @@ extern uint8_t card_res;
   int fputc(int ch, FILE *fp) { HAL_UART_Transmit(&huart2, (uint8_t *)&ch, 1, 0xffff); return ch; }
   ```
   Keil 工程里勾选 "MicroLIB" 即可支持 printf（MDK Options → Target → Use MicroLIB）。
-- **GCC（STM32CubeIDE/CMake/本机）**：需要提供 `_write` 重定向。交付物在 hardware/USART 提供 GCC 版 syscall 文件，注意两点：
-  - 目标必须是 **huart2**（案例原版 syscall.c 重定向到 huart1 是给读卡调试用的，照抄会语音走错串口）
-  - 若手改案例 syscall.c：`_write` 里的 **`USART1->SR` 也要一并改成 `USART2->SR`**（寄存器名与句柄都要改，只改一个会变成"等 USART1 状态、发 USART2"的隐性错误）；`_read` 同样处理
-  - 该 syscall 文件仅在 GCC 工具链下编译（文件内已用 `__GNUC__` 条件编译包裹；ARM Compiler 5 不支持 `__has_include`，Keil 工程请勿加入此文件）
+- **GCC（STM32CubeIDE/CMake/本机）**：新版 CubeMX（6.17）生成的 `Core/Src/syscalls.c` 把 `_write` 转发到 `__io_putchar` **弱符号**。业务代码只需在 `hardware/USART/BSP_USART.c` 提供 `__io_putchar` 强定义（指向 **huart2**）即可完成 printf 重定向，无需改动 syscalls.c。
+  - 注意：旧版案例的 syscall.c 是重定向到 huart1 的（给读卡调试用），照抄会语音走错串口——本工程统一走 __io_putchar → huart2
+  - Keil（ARMCC）工程请勿编译 syscalls.c（其中 `__has_include` 等语法 ARM Compiler 5 不支持），Keil 用 BSP_USART.c 的 fputc 方案
 
 ### 15.5 修改 stm32f1xx_it.c：HardFault 自动重启
 

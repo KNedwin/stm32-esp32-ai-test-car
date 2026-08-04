@@ -7,7 +7,7 @@
 #define MOTOR_START_LATE_TIME_MS    2000    /* A：通电延时(ms)后电机才启动。默认2秒 */
 #define MOTOR_START_SLOW_TIME_MS    4000    /* B：缓启动时长(ms)，0→目标速度线性加速。默认4秒 */
 #define MOTOR_TARGET_SPEED          999     /* 电机目标速度(0~999)。999=最高电压输出 */
-#define MOTOR_SLOW_RAMP_STEP_MS     10      /* 缓启动/减速的更新粒度(ms)。越小越平滑，10即可 */
+#define MOTOR_MAX_RUN_TIME_MS       (1000UL*1000UL)  /* 电机运行绝对上限：1000秒 */
 
 /* ================= 定时降速窗口（开机后仅一次） ================= */
 #define MOTOR_TIME_START_S          42      /* E：电机运行到第几秒开始降速。默认42秒 */
@@ -34,6 +34,7 @@ typedef struct {
     uint8_t        speak_en;  /* 触发时是否播报（1=播报） */
 } trigger_rule_t;
 
+#define TRIGGER_RULES_MAX   8   /* 触发词规则数上限（状态数组容量，勿超过） */
 #define TRIGGER_RULES \
 { \
   { (const uint8_t*)"\xCC\xAB\xD1\xF4", 4, 1, 1 },   /* "太阳"：1次触发，播报+停车 */ \
@@ -45,10 +46,12 @@ typedef struct {
 #define TRIGGER_WAIT_TIME_S        10         /* I：停住后静止等待(秒)。默认10秒 */
 
 /* ================= LED 与播报去重 ================= */
+#define RFID_BLOCK_SIZE             16      /* 读卡单块数据字节数（S50 一块=16字节） */
 #define LED_ON_TIME_S               3       /* C：卡脱离线圈后，LED延迟熄灭时间(秒)。默认3秒 */
 #define SPEAK_DEDUP_TIME_S          10      /* D：相同内容去重窗口(秒)。默认10秒 */
 #define RFID_READ_DELAY_MS          800     /* 一次播报后到下次读卡的间隔(ms)。默认800ms */
 #define RFID_LED_POLL_MS            10      /* LED亮灯期间轮询读卡的间隔(ms)。默认10ms */
+#define RFID_READ_TIMEOUT_MS        20      /* 读块响应超时(ms)，超时重发，2次后放弃 */
 
 /* ================= 电位器自动停止 ================= */
 #define RES_MAX                     5000    /* 电位器阻值量程(用于线性插值) */

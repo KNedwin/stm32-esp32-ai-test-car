@@ -107,7 +107,7 @@ int main(void)
   Dbg_Init();                   /* 数据输出串口（输出 [SYS] boot） */
   Motor_Init();                 /* 电位器采样 + 电机参数初始化（阻塞约20ms） */
   RFID_Init();                  /* TTS 设置 + 读卡参数初始化（阻塞约0.9s） */
-  HAL_UART_Receive_IT( &huart1, (uint8_t *)&card_res, 1 );  /* 开读卡串口接收中断 */
+  /* 读卡串口接收中断已在 usart.c USART1_Init 2 区使能（防 ORE），此处不再重复 */
   /* USER CODE END 2 */
 
   /* Infinite loop */

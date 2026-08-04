@@ -51,7 +51,6 @@ void Motor_Control_Task(void const * argument)
                 {
                     motor_control.state = MOTOR_STATE_RAMPUP;
                     motor_control.state_tick = HAL_GetTick();
-                    ramp_speed = 0;
 #if DBG_ECHO_MOTOR
                     Dbg_Printf("[MOTOR] RAMPUP speed=%u\r\n", motor_control.speed);
 #endif
@@ -112,7 +111,7 @@ void Motor_Control_Task(void const * argument)
                     Motor_ApplySpeed(motor_control.target_speed);
                 }
                 /* 绝对停车检查（电位器/上限） */
-                if( (t >= motor_control.stop_time) || (t >= 1000UL*1000UL) )
+                if( (t >= motor_control.stop_time) || (t >= MOTOR_MAX_RUN_TIME_MS) )
                 {
                     motor_control.state = MOTOR_STATE_STOP;
                     Motor_ApplySpeed(0);
@@ -147,7 +146,6 @@ void Motor_Control_Task(void const * argument)
                 {
                     motor_control.state = MOTOR_STATE_RAMPUP;
                     motor_control.state_tick = HAL_GetTick();
-                    ramp_speed = 0;
 #if DBG_ECHO_MOTOR
                     Dbg_Printf("[MOTOR] RAMPUP speed=0\r\n");
 #endif

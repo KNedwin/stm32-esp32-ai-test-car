@@ -22,11 +22,11 @@ void PWM_DutySet( TIM_TypeDef* timx, uint8_t channel, uint16_t duty )
 }
 
 /**
- * 电机控制（案例原样）。
- * speed 0~999：CH1 恒低（CCR=0，PWM2 下输出高电平... 详见注释）
- * 说明：PWM2 模式下 CCR=999 → 高电平占空比接近 100%。
- *   speed==0：两路都 CCR=999 → 两端同电位，电机停
- *   speed>0 ：CH1=0（低），CH2=speed（脉宽）→ 两端电压差 = speed/999 × 3.3V
+ * 电机控制。
+ * PWM2 模式下 CCR=999 → 高电平占空比接近 100%（两端同电位）。
+ *   speed==0：两路都 CCR=999 → 电机两端同电位，停转
+ *   speed>0 ：CH1 CCR=0（低），CH2 CCR=speed（脉宽）
+ *             → 两端电压差 = speed/999 × 3.3V，线性调速
  */
 void Motor_Control( uint16_t speed )
 {

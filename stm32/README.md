@@ -125,7 +125,7 @@ stm32/
     └── CMakeLists.txt / *.ld / startup*.s
 ```
 
-> 📌 当前状态：本项目处于**文档先行**阶段，`config.h`、`Core/`、`Drivers/`、`hardware/`、`Task/` 等代码目录由后续步骤生成——你在 Windows 上用 CubeMX 生成工程骨架后，代码文件将填充进对应目录（详见各版 01 教程 §15）。
+> 📌 当前状态：`config.h`、`hardware/`、`Task/` 业务代码已实现并通过本机编译与主机单元测试（见 `stm32/tests/run_tests.sh`）；`Core/`、`Drivers/`、`Middlewares/` 由 CubeMX 生成。重新生成 CubeMX 工程后需重做 AGENTS.md 所列 4 处修改。
 
 ---
 

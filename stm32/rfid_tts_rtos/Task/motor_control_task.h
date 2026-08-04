@@ -23,7 +23,7 @@ typedef struct
     uint32_t res;            /* 电位器换算阻值 */
     uint16_t target_speed;   /* 目标速度 */
     uint16_t speed;          /* 当前输出速度 */
-    uint16_t ramp_start;     /* 本次缓启动的起始速度（0） */
+    uint16_t ramp_start;     /* 减速起点速度（进入 STOPPING 时记录） */
 } motor_control_t;
 
 extern motor_control_t motor_control;

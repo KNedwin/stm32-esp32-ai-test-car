@@ -15,14 +15,6 @@ set(MX_Include_Dirs
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/STM32F1xx_HAL_Driver/Inc/Legacy
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Device/ST/STM32F1xx/Include
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Drivers/CMSIS/Include
-    ${CMAKE_CURRENT_SOURCE_DIR}/../..
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/USART
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/rfid_card
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/pwm
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/LED
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/ADC
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/DEBUG
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Task
 )
 
 # STM32CubeMX generated application sources
@@ -36,14 +28,6 @@ set(MX_Application_Src
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/stm32f1xx_hal_msp.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/sysmem.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../Core/Src/syscalls.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/USART/BSP_USART.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/DEBUG/Debug.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/rfid_card/Card.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/pwm/PWM.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/LED/led.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../hardware/ADC/BSP_ADC.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Task/rfid_process.c
-    ${CMAKE_CURRENT_SOURCE_DIR}/../../Task/motor_process.c
     ${CMAKE_CURRENT_SOURCE_DIR}/../../startup_stm32f103xb.s
 )
 

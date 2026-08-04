@@ -1,14 +1,14 @@
 /******************** (C) COPYRIGHT 2015 ********************
 * 文件名          : Card.c
 * 描述            : U13T 读卡模块命令与协议解析（案例源码移植+改造）
-* 改造点          : ① temp_res==2（读到卡号）时在 LEDLIGHT 态刷新全局卡在场
-*                    时间戳 rfid_last_card_tick（供 LED 延迟熄灭判断）
-*                  ② temp_res==3（无卡）分支不再递减 led_close_counts
-*                    主动熄灯，熄灭改由 rfid 状态机按 tick 判断
+* 改造点          : ① LEDLIGHT 态收到"读到卡号"刷新全局卡在场时间戳
+*                  ② "无卡"响应不再主动递减熄灯（由 rfid 状态机 tick 判断）
+*                  ③ 帧长度字段加上限校验（防 ReceiveBuffer[32] 越界）
+*                  ④ 仅 0x91（读块）响应返回 1；0xAC/0x90 不再误判为块数据
+*                  ⑤ 新增 HAL_UART_ErrorCallback：ORE 错误自愈重装接收
 ********************************************************************************/
 #include "Card.h"
 
-CARD Card;
 CMD Cmd;
 extern UART_HandleTypeDef CARD_HAL_USARTx;
 uint8_t card_res;
@@ -31,25 +31,6 @@ void SetBound115200(void)
 	Cmd.SendBuffer[4] = 0x01;
 	Cmd.SendBuffer[5] = 0xC2;
 	Cmd.SendBuffer[6] = 0x00;
-	Cmd.SendBuffer[7] = 0x98;
-	Cmd.SendBuffer[8] = 0x24;
-	Cmd.SendBuffer[9] = 0x31;
-	Cmd.SendBuffer[10] = CheckSum(Cmd.SendBuffer, len);
-	UartSendCommand(Cmd.SendBuffer, len);
-}
-
-/* 设置读卡模块波特率为 9600（命令 0x2C） */
-void SetBound9600(void)
-{
-	unsigned char len = 0x0A;
-
-	Cmd.SendBuffer[0] = len;
-	Cmd.SendBuffer[1] = 0x00;
-	Cmd.SendBuffer[2] = 0x2C;
-	Cmd.SendBuffer[3] = 0x00;
-	Cmd.SendBuffer[4] = 0x00;
-	Cmd.SendBuffer[5] = 0x25;
-	Cmd.SendBuffer[6] = 0x80;
 	Cmd.SendBuffer[7] = 0x98;
 	Cmd.SendBuffer[8] = 0x24;
 	Cmd.SendBuffer[9] = 0x31;
@@ -82,97 +63,6 @@ void ReadBlock(unsigned char block)
 	UartSendCommand(Cmd.SendBuffer, len);
 }
 
-/* 写块数据（命令 0x12） */
-void WriteBlock(unsigned char block, unsigned char *blockData)
-{
-	unsigned char i;
-	unsigned char len = 20;
-
-	Cmd.SendBuffer[0] = len;
-	Cmd.SendBuffer[1] = 0;
-	Cmd.SendBuffer[2] = 0x12;
-	Cmd.SendBuffer[3] = block;
-
-	for(i = 0; i < 16; i ++)
-	{
-		Cmd.SendBuffer[4 + i] = blockData[i];
-	}
-	Cmd.SendBuffer[20] = CheckSum(Cmd.SendBuffer, len);
-	UartSendCommand(Cmd.SendBuffer, len);
-}
-
-/* 办卡（命令 0x13） */
-void MakeCard(unsigned char block, unsigned long value)
-{
-	unsigned char len = 9;
-
-	Cmd.SendBuffer[0] = len;
-	Cmd.SendBuffer[1] = 0;
-	Cmd.SendBuffer[2] = 0x13;
-	Cmd.SendBuffer[3] = block;
-	Cmd.SendBuffer[4] = 0;
-	Cmd.SendBuffer[5] = (unsigned char)(value >> 24);
-	Cmd.SendBuffer[6] = (unsigned char)(value >> 16);
-	Cmd.SendBuffer[7] = (unsigned char)(value >> 8);
-	Cmd.SendBuffer[8] = (unsigned char)(value);
-
-	Cmd.SendBuffer[9] = CheckSum(Cmd.SendBuffer, len);
-	UartSendCommand(Cmd.SendBuffer, len);
-}
-
-/* 充值（命令 0x15） */
-void Inc(unsigned char block, unsigned long value)
-{
-	unsigned char len = 8;
-
-	Cmd.SendBuffer[0] = len;
-	Cmd.SendBuffer[1] = 0;
-	Cmd.SendBuffer[2] = 0x15;
-	Cmd.SendBuffer[3] = block;
-	Cmd.SendBuffer[4] = (unsigned char)(value >> 24);
-	Cmd.SendBuffer[5] = (unsigned char)(value >> 16);
-	Cmd.SendBuffer[6] = (unsigned char)(value >> 8);
-	Cmd.SendBuffer[7] = (unsigned char)(value);
-
-	Cmd.SendBuffer[8] = CheckSum(Cmd.SendBuffer, len);
-	UartSendCommand(Cmd.SendBuffer, len);
-}
-
-/* 扣款（命令 0x16） */
-void Dec(unsigned char block, unsigned long value)
-{
-	unsigned char len = 8;
-
-	Cmd.SendBuffer[0] = len;
-	Cmd.SendBuffer[1] = 0;
-	Cmd.SendBuffer[2] = 0x16;
-	Cmd.SendBuffer[3] = block;
-	Cmd.SendBuffer[4] = (unsigned char)(value >> 24);
-	Cmd.SendBuffer[5] = (unsigned char)(value >> 16);
-	Cmd.SendBuffer[6] = (unsigned char)(value >> 8);
-	Cmd.SendBuffer[7] = (unsigned char)(value);
-
-	Cmd.SendBuffer[8] = CheckSum(Cmd.SendBuffer, len);
-	UartSendCommand(Cmd.SendBuffer, len);
-}
-
-/* 清除卡（命令 0x14） */
-void ClearCard(unsigned char block)
-{
-	unsigned char len = 7;
-
-	Cmd.SendBuffer[0] = len;
-	Cmd.SendBuffer[1] = 0;
-	Cmd.SendBuffer[2] = 0x14;
-	Cmd.SendBuffer[3] = block;
-	Cmd.SendBuffer[4] = 0x38;
-	Cmd.SendBuffer[5] = 0x52;
-	Cmd.SendBuffer[6] = 0x7A;
-
-	Cmd.SendBuffer[7] = CheckSum(Cmd.SendBuffer, len);
-	UartSendCommand(Cmd.SendBuffer, len);
-}
-
 /* 校验：长度^地址^命令码^参数 的异或 */
 static unsigned char CheckSum(unsigned char *dat, unsigned char num)
 {
@@ -182,7 +72,7 @@ static unsigned char CheckSum(unsigned char *dat, unsigned char num)
   return bTemp;
 }
 
-/* 发送命令帧：加 0x7F 帧头，参数中的 0x7F 双写转义 */
+/* 发送命令帧：加 0x7F 帧头，参数中的 0x7F 双写转义（依赖命令数据不含 0x7F） */
 void UartSendCommand(uint8_t *buff, uint8_t cnt)
 {
   	uint8_t i;
@@ -226,8 +116,16 @@ uint8_t UartReceiveCommand(uint8_t data)
 	{
 		if( len == 0 )
 		{
-			if( data< 0x7F)
+			if( data < 0x7F )
 			{
+				/* 长度上限校验：ReceiveBuffer[32] 放不下即丢弃整帧 */
+				if( data > 31 )
+				{
+					start_receive = 0;
+					len = 0;
+					i = 0;
+					return 0;
+				}
 				len = data;
 			}
 		}
@@ -259,25 +157,15 @@ uint8_t UartReceiveCommand(uint8_t data)
 					{
 						Cmd.block_data[i] = Cmd.ReceiveBuffer[9+i];
 					}
+					return 1; /* 读到块数据 */
 				}
 				else
 				{
 					return 3; /* 无卡/错误 */
 				}
 			}
-			else if( Cmd.ReceiveBuffer[1] == 0xAC )	/* 设波特率响应 */
-			{
-				if( Cmd.ReceiveBuffer[2] != 0x00 )
-				{
-					return 3;
-				}
-			}
-			else
-			{
-				return 0;
-			}
-
-			return 1; /* 正确数据 */
+			/* 其他响应（0xAC 设波特率等）不产生事件 */
+			return 0;
 		}
 		return 0;
 	}
@@ -285,8 +173,8 @@ uint8_t UartReceiveCommand(uint8_t data)
 
 /**
  * 串口接收完成回调（USART1 中断）。
- * 案例改造点：LEDLIGHT 态收到"读到卡号"(temp_res==2) → 刷新 rfid_last_card_tick，
- * 卡在线圈上时 LED 持续亮；"无卡"(temp_res==3) 不再主动递减熄灯，
+ * LEDLIGHT 态收到"读到卡号"(temp_res==2) → 刷新 rfid_last_card_tick，
+ * 卡在线圈上时 LED 持续亮；"无卡"(temp_res==3) 不主动熄灯，
  * 熄灭由 rfid 状态机按 HAL_GetTick() 差判断。
  */
 void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
@@ -321,5 +209,23 @@ void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)
 		}
 
 		HAL_UART_Receive_IT(&huart1, (uint8_t *)&card_res, 1);
+	}
+}
+
+/**
+ * 串口错误回调（USART1）。
+ * 开机波特率切换期/EMI 干扰可能产生 ORE（溢出），HAL 会关闭接收并停在 READY，
+ * 此处清错误标志后重新使能接收中断，自愈恢复读卡功能。
+ */
+void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)
+{
+	if( huart->Instance == CARD_USARTx )
+	{
+		__HAL_UART_CLEAR_OREFLAG(huart);
+		huart->ErrorCode = HAL_UART_ERROR_NONE;
+		if( huart->RxState == HAL_UART_STATE_READY )
+		{
+			HAL_UART_Receive_IT(&huart1, (uint8_t *)&card_res, 1);
+		}
 	}
 }

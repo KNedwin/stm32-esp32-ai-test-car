@@ -105,7 +105,7 @@ int main(void)
   PWM_Init();                   /* 启动 PWM */
   Motor_Control( 0 );           /* 电机初始速度 0 */
   Dbg_Init();                   /* 数据输出串口（输出 [SYS] boot） */
-  HAL_UART_Receive_IT( &huart1, (uint8_t *)&card_res, 1 );  /* 开读卡串口接收中断 */
+  /* 读卡串口接收中断已在 usart.c USART1_Init 2 区使能（防 ORE），此处不再重复 */
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */

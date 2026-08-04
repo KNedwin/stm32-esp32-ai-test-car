@@ -6,7 +6,9 @@
 
 extern UART_HandleTypeDef huart3;
 
-static char dbg_buf[128];
+/* 注意：dbg_buf 用函数内局部变量（可重入）。
+ * RTOS 版两任务并发调用 Dbg_Printf 时，HAL_UART_Transmit 轮询模式对占用中的
+ * 串口会返回 BUSY 丢弃本次输出（不交错数据），仅可能丢一条调试信息。 */
 
 /**
  * 数据输出串口初始化（USART3，115200）。
@@ -27,6 +29,7 @@ void Dbg_Init(void)
 void Dbg_Printf(const char *fmt, ...)
 {
 #if DBG_USART_ENABLE
+  char dbg_buf[128];
   va_list args;
   uint16_t len;
 
@@ -34,7 +37,7 @@ void Dbg_Printf(const char *fmt, ...)
   len = (uint16_t)vsnprintf(dbg_buf, sizeof(dbg_buf), fmt, args);
   va_end(args);
 
-  if( len > sizeof(dbg_buf) ) len = sizeof(dbg_buf);
+  if( len > sizeof(dbg_buf) - 1 ) len = sizeof(dbg_buf) - 1;
   if( len > 0 )
   {
     HAL_UART_Transmit(&huart3, (uint8_t *)dbg_buf, len, 100);

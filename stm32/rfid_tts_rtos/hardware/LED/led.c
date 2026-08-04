@@ -39,11 +39,3 @@ void LED_Sta( uint8_t sta )
     }
 #endif
 }
-
-/* 三引脚电平翻转 */
-void LED_Toggle( void )
-{
-    HAL_GPIO_TogglePin( GPIOC, GPIO_PIN_13 );
-    HAL_GPIO_TogglePin( GPIOB, GPIO_PIN_12 );
-    HAL_GPIO_TogglePin( GPIOA, GPIO_PIN_8 );
-}

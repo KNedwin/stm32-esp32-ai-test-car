@@ -15,14 +15,9 @@ extern uint8_t card_res;
 extern volatile uint8_t card_res_flag;
 extern volatile uint32_t rfid_last_card_tick;
 
-static const trigger_rule_t g_trigger_rules[] = TRIGGER_RULES;
-#define TRIGGER_RULES_NUM (sizeof(g_trigger_rules)/sizeof(g_trigger_rules[0]))
-
 static void RFID_Par_Init(void);
-static void RFID_HandleCardData(void);
-static uint8_t RFID_TriggerMatch(uint8_t *data, uint8_t len, int16_t *rule_idx);
-static void RFID_Speak(const uint8_t *data);
-static void RFID_SpeakIfNotDup(const uint8_t *data);
+static void RFID_HandleCardData(void);   /* 规则匹配 + 去重 + 播报（决策在 rfid_logic） */
+static void RFID_Speak(const uint8_t *data);   /* 送 TTS 播报 + 更新去重记录 */
 static void BufClear(uint8_t *buf);
 
 /**
@@ -84,7 +79,8 @@ void RFID_Process(void)
             return;
         }
         /* 单块数据：统一拷贝到 chinese_data 后处理 */
-        memcpy(rfid_control.chinese_data, Cmd.block_data, 16);
+        memcpy(rfid_control.chinese_data, Cmd.block_data, RFID_BLOCK_SIZE);
+        rfid_control.chinese_data[RFID_BLOCK_SIZE-1] = 0;  /* 强制 0 结尾，防播报越界 */
         RFID_HandleCardData();
         card_res_flag = CARD_FLAG_LEDLIGHT;
         rfid_control.led_tick = HAL_GetTick();
@@ -99,7 +95,7 @@ void RFID_Process(void)
         {
             wait_tick = HAL_GetTick();
             rfid_control.wait_time++;
-            if( rfid_control.wait_time >= 20 )           /* 20ms 超时重发 */
+            if( rfid_control.wait_time >= RFID_READ_TIMEOUT_MS )  /* 超时重发 */
             {
                 rfid_control.wait_resend_times++;
                 card_res_flag = CARD_FLAG_EXIST;
@@ -155,11 +151,7 @@ static void RFID_Par_Init( void )
     rfid_control.wait_resend_times = 0;
     rfid_control.led_tick = 0;
     rfid_control.poll_tick = 0;
-    memset(rfid_control.last_speak, 0, sizeof(rfid_control.last_speak));
-    rfid_control.last_speak_tick = 0;
-    memset(rfid_control.trig_count, 0, sizeof(rfid_control.trig_count));
-    memset(rfid_control.trig_last_count_tick, 0, sizeof(rfid_control.trig_last_count_tick));
-    memset(rfid_control.trig_triggered, 0, sizeof(rfid_control.trig_triggered));
+    RfidLogic_Init(&rfid_control.logic);
     rfid_last_card_tick = HAL_GetTick();
 
 #if RFID_READ_DATA_WHEN_START
@@ -169,132 +161,45 @@ static void RFID_Par_Init( void )
 #endif
 }
 
-/* 卡数据处理：规则匹配 → 计数/触发 → 去重 → 播报 */
+/* 卡数据处理：决策由 rfid_logic 完成，本函数执行事件动作（置标志/播报） */
 static void RFID_HandleCardData(void)
 {
-    int16_t rule_idx = -1;
-    uint8_t hit = RFID_TriggerMatch(rfid_control.chinese_data, 16, &rule_idx);
-    uint8_t speak_forced = 0;
+    uint8_t ev = RfidLogic_Process(&rfid_control.logic, rfid_control.chinese_data,
+                                   RFID_BLOCK_SIZE, Motor_IsInStopSequence(),
+                                   HAL_GetTick());
 
 #if DBG_ECHO_RFID
     Dbg_Printf("[RFID] ");
-    for( uint8_t i = 0; i < 16 && rfid_control.chinese_data[i]; i++ )
+    for( uint8_t i = 0; i < RFID_BLOCK_SIZE && rfid_control.chinese_data[i]; i++ )
     {
         Dbg_Printf("%02X ", rfid_control.chinese_data[i]);
     }
     Dbg_Printf("\r\n");
 #endif
 
-    if( hit )
+    if( ev & RFID_EV_TRIGGER_STOP )
     {
-        const trigger_rule_t *rule = &g_trigger_rules[rule_idx];
-
-        if( rfid_control.trig_triggered[rule_idx] )
-        {
-            /* 已触发过：按普通卡处理（只播报亮灯） */
-            RFID_SpeakIfNotDup(rfid_control.chinese_data);
-            return;
-        }
-        if( Motor_IsInStopSequence() )
-        {
-            /* 停车序列期间：不计数不触发，按普通卡处理 */
-            RFID_SpeakIfNotDup(rfid_control.chinese_data);
-            return;
-        }
-
-        if( rule->count_req == 1 )
-        {
-            /* 一次性词：直接触发 */
-            rfid_control.trig_triggered[rule_idx] = 1;
-            motor_trigger_flag = 1;
-            if( rule->speak_en ) speak_forced = 1;
-        }
-        else
-        {
-            /* 计数型词：首次数无条件放行；后续要求间隔 ≥ TRIGGER_COUNT_INTERVAL_MS 才算有效计数 */
-            if( (rfid_control.trig_count[rule_idx] == 0) ||
-                ((HAL_GetTick() - rfid_control.trig_last_count_tick[rule_idx])
-                 >= (uint32_t)TRIGGER_COUNT_INTERVAL_MS) )
-            {
-                rfid_control.trig_count[rule_idx]++;
-                rfid_control.trig_last_count_tick[rule_idx] = HAL_GetTick();
-            }
-            if( rfid_control.trig_count[rule_idx] >= rule->count_req )
-            {
-                rfid_control.trig_count[rule_idx] = 0;
-                rfid_control.trig_triggered[rule_idx] = 1;
-                motor_trigger_flag = 1;
-                if( rule->speak_en ) speak_forced = 1;
-            }
-        }
-
-        if( speak_forced )
-        {
-            /* 触发播报：强制播报（不受去重约束），随后更新去重记录 */
-            RFID_Speak(rfid_control.chinese_data);
-        }
-        else
-        {
-            RFID_SpeakIfNotDup(rfid_control.chinese_data);
-        }
+        motor_trigger_flag = 1;
     }
-    else
+    if( ev & (RFID_EV_SPEAK | RFID_EV_SPEAK_FORCED) )
     {
-        RFID_SpeakIfNotDup(rfid_control.chinese_data);
+        RFID_Speak(rfid_control.chinese_data);
     }
-}
-
-/* 在 data[len] 中搜索任意触发词（子串匹配），命中返回 1 并给出规则号 */
-static uint8_t RFID_TriggerMatch(uint8_t *data, uint8_t len, int16_t *rule_idx)
-{
-    uint8_t  i, r, k;
-    uint8_t  dlen;
-
-    for( r = 0; r < TRIGGER_RULES_NUM; r++ )
-    {
-        dlen = g_trigger_rules[r].len;
-        if( dlen > len ) continue;
-        for( i = 0; i + dlen <= len; i++ )
-        {
-            for( k = 0; k < dlen; k++ )
-            {
-                if( data[i+k] != g_trigger_rules[r].word[k] ) break;
-            }
-            if( k == dlen )
-            {
-                *rule_idx = (int16_t)r;
-                return 1;
-            }
-        }
-    }
-    return 0;
+    /* ev == RFID_EV_NONE：去重拦截，不播报（LED 由 LEDLIGHT 逻辑照常亮） */
 }
 
 /* 直接送 TTS 播报，并更新去重记录 */
 static void RFID_Speak(const uint8_t *data)
 {
     Usartx_SendString((uint8_t *)data);
-    while( !__HAL_UART_GET_FLAG( &HAL_USARTX, UART_FLAG_TC ) ); /* 等 TTS(USART2) 发送完成 */
-    memcpy(rfid_control.last_speak, data, 16);
-    rfid_control.last_speak_tick = HAL_GetTick();
+    RfidLogic_UpdateSpeak(&rfid_control.logic, data, HAL_GetTick());
 }
 
-/* 去重后播报：D 秒内相同内容不重复播报（LED 不受影响） */
-static void RFID_SpeakIfNotDup(const uint8_t *data)
-{
-    if( (memcmp(rfid_control.last_speak, data, 16) == 0) &&
-        ((HAL_GetTick() - rfid_control.last_speak_tick) < (uint32_t)SPEAK_DEDUP_TIME_S*1000UL) )
-    {
-        return;    /* 去重：跳过播报 */
-    }
-    RFID_Speak(data);
-}
-
-/* 清空 0 结尾字符串 */
+/* 清空缓冲（清到首个 0，最多 RFID_BLOCK_SIZE 字节） */
 static void BufClear( uint8_t* buf )
 {
     uint8_t k = 0;
-    for( k = 0; k < 16 && buf[k] != '\0'; k++ )   /* 加长度上限，防 16 字节全非零越界 */
+    for( k = 0; k < RFID_BLOCK_SIZE && buf[k] != '\0'; k++ )
     {
         buf[k] = 0;
     }

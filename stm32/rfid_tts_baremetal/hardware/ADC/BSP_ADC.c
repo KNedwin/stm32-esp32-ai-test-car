@@ -2,13 +2,6 @@
 
 extern ADC_HandleTypeDef   HAL_ADCX;
 
-/* ADC 初始化（校准） */
-void ADC_Init( void )
-{
-  HAL_ADC_Start( &HAL_ADCX );
-  HAL_ADCEx_Calibration_Start( &HAL_ADCX );
-}
-
 /* 读取一次 ADC 转换值（软件触发） */
 uint32_t Get_ADC_Value( void )
 {

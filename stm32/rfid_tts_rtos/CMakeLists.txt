@@ -43,13 +43,29 @@ target_link_directories(${CMAKE_PROJECT_NAME} PRIVATE
 )
 
 # Add sources to executable
+# User sources (业务代码，独立于 CubeMX 生成区，重新生成不会被覆盖)
 target_sources(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user sources here
+    hardware/USART/BSP_USART.c
+    hardware/DEBUG/Debug.c
+    hardware/rfid_card/Card.c
+    hardware/pwm/PWM.c
+    hardware/LED/led.c
+    hardware/ADC/BSP_ADC.c
+    Task/rfid_logic.c
+    Task/rfid_task.c
+    Task/motor_control_task.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
-    # Add user defined include paths
+    ${CMAKE_CURRENT_SOURCE_DIR}
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/USART
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/DEBUG
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/rfid_card
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/pwm
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/LED
+    ${CMAKE_CURRENT_SOURCE_DIR}/hardware/ADC
+    ${CMAKE_CURRENT_SOURCE_DIR}/Task
 )
 
 # Add project symbols (macros)
