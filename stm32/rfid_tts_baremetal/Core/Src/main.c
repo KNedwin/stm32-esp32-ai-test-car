@@ -25,7 +25,13 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "BSP_USART.h"
+#include "led.h"
+#include "PWM.h"
+#include "Card.h"
+#include "Debug.h"
+#include "rfid_process.h"
+#include "motor_process.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -57,7 +63,7 @@ void SystemClock_Config(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern uint8_t card_res;
 /* USER CODE END 0 */
 
 /**
@@ -95,13 +101,21 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  LED_Sta( 0 );                 /* LED 初始化熄灭 */
+  PWM_Init();                   /* 启动 PWM */
+  Motor_Control( 0 );           /* 电机初始速度 0 */
+  Dbg_Init();                   /* 数据输出串口（输出 [SYS] boot） */
+  Motor_Init();                 /* 电位器采样 + 电机参数初始化（阻塞约20ms） */
+  RFID_Init();                  /* TTS 设置 + 读卡参数初始化（阻塞约0.9s） */
+  HAL_UART_Receive_IT( &huart1, (uint8_t *)&card_res, 1 );  /* 开读卡串口接收中断 */
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+    RFID_Process();    /* 读卡、播报、LED、去重、触发（非阻塞状态机） */
+    Motor_Process();   /* 电机时序（非阻塞状态机） */
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

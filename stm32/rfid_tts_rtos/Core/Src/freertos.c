@@ -48,10 +48,13 @@
 
 /* USER CODE END Variables */
 osThreadId defaultTaskHandle;
+osThreadId RFID_TASKHandle;
+osThreadId MOTOR_CONTROLHandle;
 
 /* Private function prototypes -----------------------------------------------*/
 /* USER CODE BEGIN FunctionPrototypes */
-
+void RFID_Task(void const * argument);
+void Motor_Control_Task(void const * argument);
 /* USER CODE END FunctionPrototypes */
 
 void StartDefaultTask(void const * argument);
@@ -106,7 +109,13 @@ void MX_FREERTOS_Init(void) {
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
-  /* add threads, ... */
+  /* definition and creation of RFID_TASK */
+  osThreadDef(RFID_TASK, RFID_Task, osPriorityHigh, 0, 1024);
+  RFID_TASKHandle = osThreadCreate(osThread(RFID_TASK), NULL);
+
+  /* definition and creation of MOTOR_CONTROL */
+  osThreadDef(MOTOR_CONTROL, Motor_Control_Task, osPriorityIdle, 0, 512);
+  MOTOR_CONTROLHandle = osThreadCreate(osThread(MOTOR_CONTROL), NULL);
   /* USER CODE END RTOS_THREADS */
 
 }

@@ -21,7 +21,7 @@
 #include "usart.h"
 
 /* USER CODE BEGIN 0 */
-
+#include "Card.h"
 /* USER CODE END 0 */
 
 UART_HandleTypeDef huart1;
@@ -53,7 +53,13 @@ void MX_USART1_UART_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN USART1_Init 2 */
-
+  SetBound115200();                                          /* 命令读卡模块切换到115200 */
+  while( !__HAL_UART_GET_FLAG( &huart1, UART_FLAG_TC ) );    /* 等待发送完成 */
+  huart1.Init.BaudRate = 115200;                             /* 本机串口同步改为115200 */
+  if (HAL_UART_Init(&huart1) != HAL_OK)
+  {
+    Error_Handler();
+  }
   /* USER CODE END USART1_Init 2 */
 
 }
@@ -70,7 +76,7 @@ void MX_USART2_UART_Init(void)
 
   /* USER CODE END USART2_Init 1 */
   huart2.Instance = USART2;
-  huart2.Init.BaudRate = 115200;
+  huart2.Init.BaudRate = 9600;
   huart2.Init.WordLength = UART_WORDLENGTH_8B;
   huart2.Init.StopBits = UART_STOPBITS_1;
   huart2.Init.Parity = UART_PARITY_NONE;

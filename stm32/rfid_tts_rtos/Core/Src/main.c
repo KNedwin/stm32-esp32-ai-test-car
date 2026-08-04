@@ -26,7 +26,11 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "BSP_USART.h"
+#include "led.h"
+#include "PWM.h"
+#include "Card.h"
+#include "Debug.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -59,7 +63,7 @@ void MX_FREERTOS_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
-
+extern uint8_t card_res;
 /* USER CODE END 0 */
 
 /**
@@ -97,7 +101,11 @@ int main(void)
   MX_USART2_UART_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
-
+  LED_Sta( 0 );                 /* LED 初始化熄灭 */
+  PWM_Init();                   /* 启动 PWM */
+  Motor_Control( 0 );           /* 电机初始速度 0 */
+  Dbg_Init();                   /* 数据输出串口（输出 [SYS] boot） */
+  HAL_UART_Receive_IT( &huart1, (uint8_t *)&card_res, 1 );  /* 开读卡串口接收中断 */
   /* USER CODE END 2 */
 
   /* Call init function for freertos objects (in cmsis_os2.c) */
