@@ -1,0 +1,82 @@
+{
+ "functions": [
+  {
+   "name": "now_ms",
+   "line": 17,
+   "signature": "static inline uint32_t now_ms(void)",
+   "file": "main/rfid_process.c"
+  },
+  {
+   "name": "RFID_Init",
+   "line": 30,
+   "signature": "void RFID_Init(void)",
+   "file": "main/rfid_process.c"
+  },
+  {
+   "name": "RFID_Process",
+   "line": 44,
+   "signature": "void RFID_Process(void)",
+   "file": "main/rfid_process.c"
+  },
+  {
+   "name": "RFID_Par_Init",
+   "line": 139,
+   "signature": "static void RFID_Par_Init(void)",
+   "file": "main/rfid_process.c"
+  },
+  {
+   "name": "RFID_HandleCardData",
+   "line": 158,
+   "signature": "static void RFID_HandleCardData(void)",
+   "file": "main/rfid_process.c"
+  },
+  {
+   "name": "RFID_Speak",
+   "line": 185,
+   "signature": "static void RFID_Speak(const uint8_t *data)",
+   "file": "main/rfid_process.c"
+  },
+  {
+   "name": "BufClear",
+   "line": 192,
+   "signature": "static void BufClear(uint8_t *buf)",
+   "file": "main/rfid_process.c"
+  },
+  {
+   "name": "app_main",
+   "line": 17,
+   "signature": "void app_main(void)",
+   "file": "main/app_main.c"
+  },
+  {
+   "name": "now_ms",
+   "line": 14,
+   "signature": "static inline uint32_t now_ms(void)",
+   "file": "main/motor_process.c"
+  },
+  {
+   "name": "Motor_Init",
+   "line": 24,
+   "signature": "void Motor_Init(void)",
+   "file": "main/motor_process.c"
+  },
+  {
+   "name": "Motor_Process",
+   "line": 49,
+   "signature": "void Motor_Process(void)",
+   "file": "main/motor_process.c"
+  },
+  {
+   "name": "Motor_ApplySpeed",
+   "line": 68,
+   "signature": "static void Motor_ApplySpeed(uint16_t speed)",
+   "file": "main/motor_process.c"
+  },
+  {
+   "name": "Motor_IsInStopSequence",
+   "line": 74,
+   "signature": "uint8_t Motor_IsInStopSequence(void)",
+   "file": "main/motor_process.c"
+  }
+ ]
+}

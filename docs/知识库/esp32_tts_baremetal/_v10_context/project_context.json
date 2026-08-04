@@ -1,0 +1,139 @@
+{
+  "project_name": "esp32_tts_baremetal",
+  "project_root": "<HOME>/新能源小车/esp32/esp32_tts_baremetal",
+  "build_system": "esp_idf",
+  "target_device": "ESP32-S3",
+  "flash": {
+    "start": "0x00000000",
+    "size": "0x200000"
+  },
+  "ram": {
+    "start": "0x3FC88000",
+    "size": "0x80000"
+  },
+  "active_macros": [
+    "ESP_PLATFORM",
+    "IDF_VER=\"v6.0.2\""
+  ],
+  "include_paths": [
+    "<HOME>/新能源小车/esp32/esp32_tts_baremetal/main"
+  ],
+  "business_sources": [
+    {
+      "relative_path": "<extra>/card_parse.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/adc.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/card_uart.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/rfid_logic.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/motor_drv.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/tts.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/motor_logic.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/debug.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/led.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "main/rfid_process.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "main/app_main.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "main/motor_process.c",
+      "classification": "business"
+    }
+  ],
+  "third_party_sources": [],
+  "hal_sources": [],
+  "active_sources": [
+    {
+      "relative_path": "<extra>/card_parse.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/adc.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/card_uart.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/rfid_logic.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/motor_drv.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/tts.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/motor_logic.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/debug.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/led.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "main/rfid_process.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "main/app_main.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "main/motor_process.c",
+      "classification": "business"
+    }
+  ],
+  "header_files": [
+    "main/rfid_process.h",
+    "main/motor_process.h",
+    "../components/common/card_parse.h",
+    "../components/common/led.h",
+    "../components/common/pins.h",
+    "../components/common/motor_logic.h",
+    "../components/common/adc.h",
+    "../components/common/rfid_logic.h",
+    "../components/common/config.h",
+    "../components/common/tts.h",
+    "../components/common/motor_drv.h",
+    "../components/common/card_uart.h",
+    "../components/common/debug.h"
+  ],
+  "extracted_at": "2026-08-04 14:06:00"
+}

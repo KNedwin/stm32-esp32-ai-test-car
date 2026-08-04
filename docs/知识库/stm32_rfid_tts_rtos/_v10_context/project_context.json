@@ -1,0 +1,394 @@
+{
+  "project_name": "stm32_rfid_tts_rtos",
+  "project_root": "<HOME>/新能源小车/stm32/rfid_tts_rtos",
+  "build_system": "cmake_cubemx",
+  "target_device": "STM32F103C8T6",
+  "flash": {
+    "start": "0x08000000",
+    "size": "0x10000"
+  },
+  "ram": {
+    "start": "0x20000000",
+    "size": "0x5000"
+  },
+  "active_macros": [
+    "USE_HAL_DRIVER",
+    "STM32F103xB",
+    "DEBUG"
+  ],
+  "include_paths": [
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Core/Inc",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Drivers/CMSIS/Include",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/include",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/.",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/USART",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/rfid_card",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/pwm",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/LED",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/ADC",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/DEBUG",
+    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Task"
+  ],
+  "business_sources": [
+    {
+      "relative_path": "Task/motor_control_task.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Task/rfid_logic.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Task/rfid_task.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Task/motor_logic.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/gpio.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/adc.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/usart.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/main.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/freertos.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/tim.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/stm32f1xx_it.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/ADC/BSP_ADC.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/DEBUG/Debug.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/LED/led.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/pwm/PWM.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/USART/BSP_USART.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/rfid_card/Card.c",
+      "classification": "business"
+    }
+  ],
+  "third_party_sources": [],
+  "hal_sources": [
+    "Core/Src/sysmem.c",
+    "Core/Src/stm32f1xx_hal_timebase_tim.c",
+    "Core/Src/syscalls.c",
+    "Core/Src/stm32f1xx_hal_msp.c",
+    "Core/Src/system_stm32f1xx.c"
+  ],
+  "active_sources": [
+    {
+      "relative_path": "Task/motor_control_task.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Task/rfid_logic.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Task/rfid_task.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Task/motor_logic.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/sysmem.c",
+      "classification": "hal"
+    },
+    {
+      "relative_path": "Core/Src/gpio.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/adc.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/usart.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/stm32f1xx_hal_timebase_tim.c",
+      "classification": "hal"
+    },
+    {
+      "relative_path": "Core/Src/syscalls.c",
+      "classification": "hal"
+    },
+    {
+      "relative_path": "Core/Src/stm32f1xx_hal_msp.c",
+      "classification": "hal"
+    },
+    {
+      "relative_path": "Core/Src/system_stm32f1xx.c",
+      "classification": "hal"
+    },
+    {
+      "relative_path": "Core/Src/main.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/freertos.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/tim.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "Core/Src/stm32f1xx_it.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/ADC/BSP_ADC.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/DEBUG/Debug.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/LED/led.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/pwm/PWM.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/USART/BSP_USART.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "hardware/rfid_card/Card.c",
+      "classification": "business"
+    }
+  ],
+  "header_files": [
+    "Core/Inc/stm32f1xx_hal_conf.h",
+    "Core/Inc/main.h",
+    "Core/Inc/usart.h",
+    "Core/Inc/stm32f1xx_it.h",
+    "Core/Inc/adc.h",
+    "Core/Inc/gpio.h",
+    "Core/Inc/tim.h",
+    "Core/Inc/FreeRTOSConfig.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_cortex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usart.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_exti.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_exti.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_bus.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_system.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_dma.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_utils.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_tim.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_rcc.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_pwr.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_gpio.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_adc.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h",
+    "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h",
+    "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h",
+    "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h",
+    "Drivers/CMSIS/Include/mpu_armv7.h",
+    "Drivers/CMSIS/Include/core_armv8mml.h",
+    "Drivers/CMSIS/Include/tz_context.h",
+    "Drivers/CMSIS/Include/cmsis_armclang.h",
+    "Drivers/CMSIS/Include/cmsis_gcc.h",
+    "Drivers/CMSIS/Include/core_cm4.h",
+    "Drivers/CMSIS/Include/core_cm1.h",
+    "Drivers/CMSIS/Include/core_cm7.h",
+    "Drivers/CMSIS/Include/mpu_armv8.h",
+    "Drivers/CMSIS/Include/cmsis_iccarm.h",
+    "Drivers/CMSIS/Include/core_cm23.h",
+    "Drivers/CMSIS/Include/core_cm0.h",
+    "Drivers/CMSIS/Include/core_cm33.h",
+    "Drivers/CMSIS/Include/core_armv8mbl.h",
+    "Drivers/CMSIS/Include/core_sc300.h",
+    "Drivers/CMSIS/Include/cmsis_version.h",
+    "Drivers/CMSIS/Include/cmsis_armcc.h",
+    "Drivers/CMSIS/Include/core_sc000.h",
+    "Drivers/CMSIS/Include/core_cm0plus.h",
+    "Drivers/CMSIS/Include/core_cm3.h",
+    "Drivers/CMSIS/Include/cmsis_compiler.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/queue.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/stack_macros.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/StackMacros.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/timers.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/mpu_prototypes.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/message_buffer.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/list.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/task.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/portable.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/croutine.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/portmacro.h",
+    "config.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3/portmacro.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/stream_buffer.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/queue.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/FreeRTOS.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/stack_macros.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/StackMacros.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/timers.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/mpu_wrappers.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/mpu_prototypes.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/message_buffer.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/deprecated_definitions.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/list.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/task.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/event_groups.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/projdefs.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/portable.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/croutine.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/include/semphr.h",
+    "Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS/cmsis_os.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_cortex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_usart.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_exti.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_exti.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_bus.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_system.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_pwr.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_dma.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_utils.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_cortex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_tim.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_adc.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_dma.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_rcc.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_pwr.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_gpio_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_flash.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_def.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_rcc_ex.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_gpio.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_ll_adc.h",
+    "Drivers/STM32F1xx_HAL_Driver/Inc/Legacy/stm32_hal_legacy.h",
+    "Drivers/CMSIS/Include/mpu_armv7.h",
+    "Drivers/CMSIS/Include/core_armv8mml.h",
+    "Drivers/CMSIS/Include/tz_context.h",
+    "Drivers/CMSIS/Include/cmsis_armclang.h",
+    "Drivers/CMSIS/Include/cmsis_gcc.h",
+    "Drivers/CMSIS/Include/core_cm4.h",
+    "Drivers/CMSIS/Include/core_cm1.h",
+    "Drivers/CMSIS/Include/core_cm7.h",
+    "Drivers/CMSIS/Include/mpu_armv8.h",
+    "Drivers/CMSIS/Include/cmsis_iccarm.h",
+    "Drivers/CMSIS/Include/core_cm23.h",
+    "Drivers/CMSIS/Include/core_cm0.h",
+    "Drivers/CMSIS/Include/core_cm33.h",
+    "Drivers/CMSIS/Include/core_armv8mbl.h",
+    "Drivers/CMSIS/Include/core_sc300.h",
+    "Drivers/CMSIS/Include/cmsis_version.h",
+    "Drivers/CMSIS/Include/cmsis_armcc.h",
+    "Drivers/CMSIS/Include/core_sc000.h",
+    "Drivers/CMSIS/Include/core_cm0plus.h",
+    "Drivers/CMSIS/Include/core_cm3.h",
+    "Drivers/CMSIS/Include/cmsis_compiler.h",
+    "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f103xb.h",
+    "Drivers/CMSIS/Device/ST/STM32F1xx/Include/stm32f1xx.h",
+    "Drivers/CMSIS/Device/ST/STM32F1xx/Include/system_stm32f1xx.h",
+    "Task/motor_logic.h",
+    "Task/rfid_task.h",
+    "Task/rfid_logic.h",
+    "Task/motor_control_task.h",
+    "Core/Inc/stm32f1xx_hal_conf.h",
+    "Core/Inc/main.h",
+    "Core/Inc/usart.h",
+    "Core/Inc/stm32f1xx_it.h",
+    "Core/Inc/adc.h",
+    "Core/Inc/gpio.h",
+    "Core/Inc/tim.h",
+    "Core/Inc/FreeRTOSConfig.h",
+    "hardware/ADC/BSP_ADC.h",
+    "hardware/DEBUG/Debug.h",
+    "hardware/LED/led.h",
+    "hardware/pwm/PWM.h",
+    "hardware/USART/BSP_USART.h",
+    "hardware/rfid_card/Card.h",
+    "hardware/USART/BSP_USART.h",
+    "hardware/rfid_card/Card.h",
+    "hardware/pwm/PWM.h",
+    "hardware/LED/led.h",
+    "hardware/ADC/BSP_ADC.h",
+    "hardware/DEBUG/Debug.h",
+    "Task/motor_logic.h",
+    "Task/rfid_task.h",
+    "Task/rfid_logic.h",
+    "Task/motor_control_task.h"
+  ],
+  "extracted_at": "2026-08-04 14:06:00"
+}

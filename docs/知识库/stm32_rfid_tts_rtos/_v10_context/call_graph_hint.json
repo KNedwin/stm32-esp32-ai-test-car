@@ -1,0 +1,406 @@
+{
+ "functions": [
+  {
+   "name": "Motor_Init",
+   "line": 14,
+   "signature": "void Motor_Init(void)",
+   "file": "Task/motor_control_task.c"
+  },
+  {
+   "name": "Motor_Control_Task",
+   "line": 39,
+   "signature": "void Motor_Control_Task(void const * argument)",
+   "file": "Task/motor_control_task.c"
+  },
+  {
+   "name": "Motor_ApplySpeed",
+   "line": 65,
+   "signature": "static void Motor_ApplySpeed(uint16_t speed)",
+   "file": "Task/motor_control_task.c"
+  },
+  {
+   "name": "Motor_IsInStopSequence",
+   "line": 71,
+   "signature": "uint8_t Motor_IsInStopSequence(void)",
+   "file": "Task/motor_control_task.c"
+  },
+  {
+   "name": "RfidLogic_RuleCount",
+   "line": 7,
+   "signature": "uint8_t RfidLogic_RuleCount(void)",
+   "file": "Task/rfid_logic.c"
+  },
+  {
+   "name": "RfidLogic_Init",
+   "line": 12,
+   "signature": "void RfidLogic_Init(rfid_logic_t *lx)",
+   "file": "Task/rfid_logic.c"
+  },
+  {
+   "name": "RfidLogic_TriggerMatch",
+   "line": 17,
+   "signature": "int16_t RfidLogic_TriggerMatch(const uint8_t *data, uint8_t len)",
+   "file": "Task/rfid_logic.c"
+  },
+  {
+   "name": "RfidLogic_IsDup",
+   "line": 42,
+   "signature": "uint8_t RfidLogic_IsDup(rfid_logic_t *lx, const uint8_t *data, uint32_t now_ms)",
+   "file": "Task/rfid_logic.c"
+  },
+  {
+   "name": "RfidLogic_UpdateSpeak",
+   "line": 52,
+   "signature": "void RfidLogic_UpdateSpeak(rfid_logic_t *lx, const uint8_t *data, uint32_t now_ms)",
+   "file": "Task/rfid_logic.c"
+  },
+  {
+   "name": "RfidLogic_Process",
+   "line": 58,
+   "signature": "uint8_t RfidLogic_Process(rfid_logic_t *lx, const uint8_t *data, uint8_t len,\n                          uint8_t in_stop_sequence, uint32_t now_ms)",
+   "file": "Task/rfid_logic.c"
+  },
+  {
+   "name": "RFID_Task",
+   "line": 29,
+   "signature": "void RFID_Task(void const * argument)",
+   "file": "Task/rfid_task.c"
+  },
+  {
+   "name": "RFID_Par_Init",
+   "line": 143,
+   "signature": "static void RFID_Par_Init(void)",
+   "file": "Task/rfid_task.c"
+  },
+  {
+   "name": "RFID_HandleCardData",
+   "line": 161,
+   "signature": "static void RFID_HandleCardData(void)",
+   "file": "Task/rfid_task.c"
+  },
+  {
+   "name": "RFID_Speak",
+   "line": 188,
+   "signature": "static void RFID_Speak(const uint8_t *data)",
+   "file": "Task/rfid_task.c"
+  },
+  {
+   "name": "BufClear",
+   "line": 195,
+   "signature": "static void BufClear(uint8_t* buf)",
+   "file": "Task/rfid_task.c"
+  },
+  {
+   "name": "MotorLogic_Init",
+   "line": 10,
+   "signature": "void MotorLogic_Init(motor_logic_t *lx, uint32_t now_ms, uint16_t target_speed, uint32_t stop_time)",
+   "file": "Task/motor_logic.c"
+  },
+  {
+   "name": "MotorLogic_Step",
+   "line": 23,
+   "signature": "uint16_t MotorLogic_Step(motor_logic_t *lx, uint8_t trigger, uint32_t now_ms)",
+   "file": "Task/motor_logic.c"
+  },
+  {
+   "name": "MotorLogic_IsInStopSequence",
+   "line": 117,
+   "signature": "uint8_t MotorLogic_IsInStopSequence(const motor_logic_t *lx)",
+   "file": "Task/motor_logic.c"
+  },
+  {
+   "name": "MotorLogic_CalcStopTime",
+   "line": 123,
+   "signature": "uint32_t MotorLogic_CalcStopTime(uint32_t adc_avg)",
+   "file": "Task/motor_logic.c"
+  },
+  {
+   "name": "MX_GPIO_Init",
+   "line": 42,
+   "signature": "void MX_GPIO_Init(void)",
+   "file": "Core/Src/gpio.c"
+  },
+  {
+   "name": "MX_ADC1_Init",
+   "line": 30,
+   "signature": "void MX_ADC1_Init(void)",
+   "file": "Core/Src/adc.c"
+  },
+  {
+   "name": "HAL_ADC_MspInit",
+   "line": 72,
+   "signature": "void HAL_ADC_MspInit(ADC_HandleTypeDef* adcHandle)",
+   "file": "Core/Src/adc.c"
+  },
+  {
+   "name": "HAL_ADC_MspDeInit",
+   "line": 98,
+   "signature": "void HAL_ADC_MspDeInit(ADC_HandleTypeDef* adcHandle)",
+   "file": "Core/Src/adc.c"
+  },
+  {
+   "name": "MX_USART1_UART_Init",
+   "line": 33,
+   "signature": "void MX_USART1_UART_Init(void)",
+   "file": "Core/Src/usart.c"
+  },
+  {
+   "name": "MX_USART2_UART_Init",
+   "line": 69,
+   "signature": "void MX_USART2_UART_Init(void)",
+   "file": "Core/Src/usart.c"
+  },
+  {
+   "name": "MX_USART3_UART_Init",
+   "line": 98,
+   "signature": "void MX_USART3_UART_Init(void)",
+   "file": "Core/Src/usart.c"
+  },
+  {
+   "name": "HAL_UART_MspInit",
+   "line": 126,
+   "signature": "void HAL_UART_MspInit(UART_HandleTypeDef* uartHandle)",
+   "file": "Core/Src/usart.c"
+  },
+  {
+   "name": "HAL_UART_MspDeInit",
+   "line": 219,
+   "signature": "void HAL_UART_MspDeInit(UART_HandleTypeDef* uartHandle)",
+   "file": "Core/Src/usart.c"
+  },
+  {
+   "name": "main",
+   "line": 73,
+   "signature": "int main(void)",
+   "file": "Core/Src/main.c"
+  },
+  {
+   "name": "SystemClock_Config",
+   "line": 134,
+   "signature": "void SystemClock_Config(void)",
+   "file": "Core/Src/main.c"
+  },
+  {
+   "name": "HAL_TIM_PeriodElapsedCallback",
+   "line": 188,
+   "signature": "void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)",
+   "file": "Core/Src/main.c"
+  },
+  {
+   "name": "Error_Handler",
+   "line": 206,
+   "signature": "void Error_Handler(void)",
+   "file": "Core/Src/main.c"
+  },
+  {
+   "name": "assert_failed",
+   "line": 224,
+   "signature": "void assert_failed(uint8_t *file, uint32_t line)",
+   "file": "Core/Src/main.c"
+  },
+  {
+   "name": "vApplicationGetIdleTaskMemory",
+   "line": 71,
+   "signature": "void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize)",
+   "file": "Core/Src/freertos.c"
+  },
+  {
+   "name": "MX_FREERTOS_Init",
+   "line": 85,
+   "signature": "void MX_FREERTOS_Init(void)",
+   "file": "Core/Src/freertos.c"
+  },
+  {
+   "name": "StartDefaultTask",
+   "line": 130,
+   "signature": "void StartDefaultTask(void const * argument)",
+   "file": "Core/Src/freertos.c"
+  },
+  {
+   "name": "MX_TIM2_Init",
+   "line": 30,
+   "signature": "void MX_TIM2_Init(void)",
+   "file": "Core/Src/tim.c"
+  },
+  {
+   "name": "HAL_TIM_PWM_MspInit",
+   "line": 81,
+   "signature": "void HAL_TIM_PWM_MspInit(TIM_HandleTypeDef* tim_pwmHandle)",
+   "file": "Core/Src/tim.c"
+  },
+  {
+   "name": "HAL_TIM_MspPostInit",
+   "line": 96,
+   "signature": "void HAL_TIM_MspPostInit(TIM_HandleTypeDef* timHandle)",
+   "file": "Core/Src/tim.c"
+  },
+  {
+   "name": "HAL_TIM_PWM_MspDeInit",
+   "line": 123,
+   "signature": "void HAL_TIM_PWM_MspDeInit(TIM_HandleTypeDef* tim_pwmHandle)",
+   "file": "Core/Src/tim.c"
+  },
+  {
+   "name": "NMI_Handler",
+   "line": 72,
+   "signature": "void NMI_Handler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "HardFault_Handler",
+   "line": 87,
+   "signature": "void HardFault_Handler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "MemManage_Handler",
+   "line": 103,
+   "signature": "void MemManage_Handler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "BusFault_Handler",
+   "line": 118,
+   "signature": "void BusFault_Handler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "UsageFault_Handler",
+   "line": 133,
+   "signature": "void UsageFault_Handler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "DebugMon_Handler",
+   "line": 148,
+   "signature": "void DebugMon_Handler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "TIM1_UP_IRQHandler",
+   "line": 168,
+   "signature": "void TIM1_UP_IRQHandler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "USART1_IRQHandler",
+   "line": 182,
+   "signature": "void USART1_IRQHandler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "USART2_IRQHandler",
+   "line": 196,
+   "signature": "void USART2_IRQHandler(void)",
+   "file": "Core/Src/stm32f1xx_it.c"
+  },
+  {
+   "name": "Get_ADC_Value",
+   "line": 6,
+   "signature": "uint32_t Get_ADC_Value(void)",
+   "file": "hardware/ADC/BSP_ADC.c"
+  },
+  {
+   "name": "Dbg_Init",
+   "line": 17,
+   "signature": "void Dbg_Init(void)",
+   "file": "hardware/DEBUG/Debug.c"
+  },
+  {
+   "name": "Dbg_Printf",
+   "line": 29,
+   "signature": "void Dbg_Printf(const char *fmt, ...)",
+   "file": "hardware/DEBUG/Debug.c"
+  },
+  {
+   "name": "LED_Sta",
+   "line": 9,
+   "signature": "void LED_Sta(uint8_t sta)",
+   "file": "hardware/LED/led.c"
+  },
+  {
+   "name": "PWM_Init",
+   "line": 6,
+   "signature": "void PWM_Init(void)",
+   "file": "hardware/pwm/PWM.c"
+  },
+  {
+   "name": "PWM_DutySet",
+   "line": 13,
+   "signature": "void PWM_DutySet(TIM_TypeDef* timx, uint8_t channel, uint16_t duty)",
+   "file": "hardware/pwm/PWM.c"
+  },
+  {
+   "name": "Motor_Control",
+   "line": 31,
+   "signature": "void Motor_Control(uint16_t speed)",
+   "file": "hardware/pwm/PWM.c"
+  },
+  {
+   "name": "__io_putchar",
+   "line": 12,
+   "signature": "int __io_putchar(int ch)",
+   "file": "hardware/USART/BSP_USART.c"
+  },
+  {
+   "name": "__io_getchar",
+   "line": 18,
+   "signature": "int __io_getchar(void)",
+   "file": "hardware/USART/BSP_USART.c"
+  },
+  {
+   "name": "Usartx_SendString",
+   "line": 28,
+   "signature": "void Usartx_SendString(uint8_t *str)",
+   "file": "hardware/USART/BSP_USART.c"
+  },
+  {
+   "name": "SetBound115200",
+   "line": 23,
+   "signature": "void SetBound115200(void)",
+   "file": "hardware/rfid_card/Card.c"
+  },
+  {
+   "name": "ReadCard",
+   "line": 42,
+   "signature": "void ReadCard(void)",
+   "file": "hardware/rfid_card/Card.c"
+  },
+  {
+   "name": "ReadBlock",
+   "line": 54,
+   "signature": "void ReadBlock(unsigned char block)",
+   "file": "hardware/rfid_card/Card.c"
+  },
+  {
+   "name": "CheckSum",
+   "line": 67,
+   "signature": "static unsigned char CheckSum(unsigned char *dat, unsigned char num)",
+   "file": "hardware/rfid_card/Card.c"
+  },
+  {
+   "name": "UartSendCommand",
+   "line": 76,
+   "signature": "void UartSendCommand(uint8_t *buff, uint8_t cnt)",
+   "file": "hardware/rfid_card/Card.c"
+  },
+  {
+   "name": "UartReceiveCommand",
+   "line": 99,
+   "signature": "uint8_t UartReceiveCommand(uint8_t data)",
+   "file": "hardware/rfid_card/Card.c"
+  },
+  {
+   "name": "HAL_UART_RxCpltCallback",
+   "line": 180,
+   "signature": "void HAL_UART_RxCpltCallback(UART_HandleTypeDef *huart)",
+   "file": "hardware/rfid_card/Card.c"
+  },
+  {
+   "name": "HAL_UART_ErrorCallback",
+   "line": 220,
+   "signature": "void HAL_UART_ErrorCallback(UART_HandleTypeDef *huart)",
+   "file": "hardware/rfid_card/Card.c"
+  }
+ ]
+}
