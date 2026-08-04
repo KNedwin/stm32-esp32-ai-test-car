@@ -3,8 +3,22 @@
 #include "driver/gpio.h"
 #include "debug.h"
 #include "config.h"
+#include "esp_check.h"
 
 static uint8_t led_last_sta = 0xFF;
+
+void LED_Init(void)
+{
+	gpio_config_t io = {
+		.pin_bit_mask = (1ULL << PIN_LED1) | (1ULL << PIN_LED2) | (1ULL << PIN_LED3),
+		.mode = GPIO_MODE_OUTPUT,
+		.pull_up_en = GPIO_PULLUP_ENABLE,
+		.pull_down_en = GPIO_PULLDOWN_DISABLE,
+		.intr_type = GPIO_INTR_DISABLE,
+	};
+	ESP_ERROR_CHECK(gpio_config(&io));
+	LED_Sta(0);
+}
 
 /* 三引脚 LED（低电平亮，边沿触发调试输出） */
 static void LED_Pins(uint8_t level)
@@ -36,18 +50,4 @@ void LED_Sta(uint8_t sta)
 		led_last_sta = sta;
 	}
 #endif
-}
-
-/* 初始化：推挽输出 + 初始高电平（灭） */
-void LED_Init(void)
-{
-	gpio_config_t io = {
-		.pin_bit_mask = (1ULL << PIN_LED1) | (1ULL << PIN_LED2) | (1ULL << PIN_LED3),
-		.mode = GPIO_MODE_OUTPUT,
-		.pull_up_en = GPIO_PULLUP_ENABLE,
-		.pull_down_en = GPIO_PULLDOWN_DISABLE,
-		.intr_type = GPIO_INTR_DISABLE,
-	};
-	gpio_config(&io);
-	LED_Sta(0);
 }

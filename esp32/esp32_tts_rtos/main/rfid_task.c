@@ -13,9 +13,7 @@
 
 rfid_control_t rfid_control;
 
-extern volatile uint8_t card_res_flag;
-extern volatile uint32_t rfid_last_card_tick;
-
+/* 时间基准：esp_timer（微秒）→ 毫秒（截断为 32 位，差值比较在回绕下仍正确） */
 static inline uint32_t now_ms(void)
 {
 	return (uint32_t)(esp_timer_get_time() / 1000);
@@ -29,20 +27,13 @@ static void BufClear(uint8_t *buf);
 /**
  * 读卡任务（与 STM32 版 rfid_task 相同逻辑）：
  * EXIST(读块) → WAIT(等响应) → RESDATA(处理) → LEDLIGHT(亮灯轮询保持) → NONE
+ * 注意：FreeRTOS 默认 100Hz 节拍，vTaskDelay(1)=10ms；所有超时用真实时间差判断。
  */
 void RFID_Task(void *arg)
 {
 	vTaskDelay(pdMS_TO_TICKS(500));     /* 等待语音模块初始化 */
 
-#if RFID_SETTING_SPEAK_SPEED
-	/* 语速/音量/上电提示设置（断电保存） */
-	TTS_Send((const uint8_t *)"<S>3");
-	vTaskDelay(pdMS_TO_TICKS(80));
-	TTS_Send((const uint8_t *)"<V>6");
-	vTaskDelay(pdMS_TO_TICKS(80));
-	TTS_Send((const uint8_t *)"<I>0");
-	vTaskDelay(pdMS_TO_TICKS(200));
-#endif
+	TTS_SetupDefaults();                /* 语速/音量/上电提示设置（模块指令已下沉 tts.c） */
 
 	RFID_Par_Init();
 
@@ -55,7 +46,7 @@ void RFID_Task(void *arg)
 			BufClear( Cmd.block_data );
 			Card_ReadBlock( rfid_control.read_block + rfid_control.chinese_block_num );
 			card_res_flag = CARD_FLAG_WAIT;
-			rfid_control.wait_time = 0;
+			rfid_control.wait_tick = now_ms();   /* 记录等待起点（真实时间差超时） */
 			/* 注意：wait_resend_times 不在 EXIST 清零，保证"重发2次后放弃"可达 */
 		}
 		else if( card_res_flag == CARD_FLAG_RESDATA )        /* 收到读块数据 */
@@ -84,32 +75,35 @@ void RFID_Task(void *arg)
 		}
 		else if( card_res_flag == CARD_FLAG_WAIT )           /* 等待模块响应 */
 		{
-			static uint32_t wait_tick = 0;
-			if( (now_ms() - wait_tick) >= 1UL )              /* 1ms 节拍 */
+			/* 真实时间差超时（不依赖 vTaskDelay 节拍，避免 100Hz 下漂移 10 倍）。
+			 * 语义：等 20ms 无响应 → 重发；重发 2 次仍无响应 → 放弃（初始+2 重发=3 次命令） */
+			if( (now_ms() - rfid_control.wait_tick) >= (uint32_t)RFID_READ_TIMEOUT_MS )
 			{
-				wait_tick = now_ms();
-				rfid_control.wait_time++;
-				if( rfid_control.wait_time >= RFID_READ_TIMEOUT_MS )  /* 超时重发 */
-				{
-					rfid_control.wait_resend_times++;
-					card_res_flag = CARD_FLAG_EXIST;
-				}
-				if( rfid_control.wait_resend_times >= 2 )    /* 重发2次后放弃 */
+				if( rfid_control.wait_resend_times >= 2 )
 				{
 					rfid_control.wait_resend_times = 0;
-					rfid_control.wait_time = 0;
-					card_res_flag = CARD_FLAG_NONE;
+					card_res_flag = CARD_FLAG_NONE;   /* 放弃 */
+				}
+				else
+				{
+					rfid_control.wait_resend_times++;
+					card_res_flag = CARD_FLAG_EXIST;  /* 重发 */
 				}
 			}
 		}
 
-		if( card_res_flag == CARD_FLAG_NONE )                /* 无卡：清状态 */
+		if( card_res_flag == CARD_FLAG_NONE )                /* 无卡：低频轮询读卡号（防失联） */
 		{
 			BufClear( rfid_control.chinese_data );
 			rfid_control.chinese_block_num = 0;
 			LED_Sta( 0 );
-			rfid_control.wait_time = 0;
 			rfid_control.wait_resend_times = 0;
+			static uint32_t none_poll_tick = 0;
+			if( (now_ms() - none_poll_tick) >= 200UL )       /* 每 200ms 探测一次，不依赖模块自动上报 */
+			{
+				none_poll_tick = now_ms();
+				Card_ReadCard();
+			}
 		}
 		else if( card_res_flag == CARD_FLAG_LEDLIGHT )       /* LED 保持：轮询读卡号 */
 		{
@@ -140,7 +134,7 @@ static void RFID_Par_Init(void)
 {
 	rfid_control.chinese_block_num = 0;
 	rfid_control.read_block = 4;
-	rfid_control.wait_time = 0;
+	rfid_control.wait_tick = 0;
 	rfid_control.wait_resend_times = 0;
 	rfid_control.led_tick = 0;
 	RfidLogic_Init(&rfid_control.logic);

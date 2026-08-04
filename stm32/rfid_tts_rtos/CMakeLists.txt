@@ -52,6 +52,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     hardware/LED/led.c
     hardware/ADC/BSP_ADC.c
     Task/rfid_logic.c
+    Task/motor_logic.c
     Task/rfid_task.c
     Task/motor_control_task.c
 )

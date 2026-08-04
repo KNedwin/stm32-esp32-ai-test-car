@@ -10,10 +10,10 @@
 #define CARD_FLAG_EXIST					3   /* 检测到卡，准备读块 */
 #define CARD_FLAG_LEDLIGHT				4   /* LED 亮灯保持中 */
 
+/* 接收帧缓冲（仅供帧解析与调用方读取 block_data；TX 组帧在 card_uart.c 局部） */
 typedef struct _CMD
 {
 	unsigned char ReceiveBuffer[32];
-	unsigned char SendBuffer[32];
 	unsigned char block_data[16];
 }CMD;
 

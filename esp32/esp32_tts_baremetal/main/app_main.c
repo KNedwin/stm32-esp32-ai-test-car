@@ -9,12 +9,10 @@
 #include "rfid_process.h"
 #include "motor_process.h"
 
-/* LED 初始化在 led.c 内定义 */
-void LED_Init(void);
-
 /**
  * 裸机版入口：单任务超级循环（顺序执行两个非阻塞状态机）
  * 所有延时均非阻塞（esp_timer 时间差）；vTaskDelay(1) 让出 CPU 防看门狗。
+ * 注意：FreeRTOS 默认 100Hz 节拍，vTaskDelay(1)=10ms。
  */
 void app_main(void)
 {
@@ -26,7 +24,7 @@ void app_main(void)
 	TTS_Init();                 /* 语音 UART2 */
 	ADC_Init();                 /* 电位器 ADC */
 
-	Motor_Init();               /* 电位器采样 + 电机状态初始化（阻塞约20ms） */
+	Motor_Init();               /* 电位器采样 + 电机状态初始化（阻塞约200ms） */
 	RFID_Init();                /* TTS 设置 + 读卡参数初始化（阻塞约0.9s） */
 
 	while( 1 )

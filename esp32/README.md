@@ -43,6 +43,8 @@ idf.py -p /dev/ttyACM0 monitor   # 串口监视（USB-Serial-JTAG console）
 | 功能 | 引脚 | 外设 | 参数 |
 |---|---|---|---|
 | 读卡模块 U13T | GPIO10 = TX，GPIO11 = RX | UART1 | 9600，初始化后切 115200 |
+
+> 引脚与 UART/ADC/LEDC 实例统一在 `esp32/components/common/pins.h` 修改（两版共用）。
 | 语音模块 CN-TTS | GPIO12 = TX，GPIO13 = RX | UART2 | 9600，8N1 |
 | 调试输出（console） | 原生 USB 口 | **USB-Serial-JTAG** | 免 USB 转 TTL，`idf.py monitor` 直接查看 |
 | 电机 PWM 输出 1 | GPIO4 | LEDC 通道 0 | 20kHz，10-bit，互补双路 |
@@ -94,29 +96,32 @@ idf.py -p /dev/ttyACM0 monitor   # 串口监视（USB-Serial-JTAG console）
 ```
 esp32/
 ├── README.md                          # 本文件
-├── esp32_tts_rtos/                    # RTOS 版
+├── components/common/                 # ★ 共享业务组件（两版唯一维护点）
+│   ├── CMakeLists.txt
+│   ├── config.h                       # 全部可调参数（与 STM32 版参数一致）
+│   ├── pins.h                         # GPIO 引脚 + UART/ADC/LEDC 实例映射
+│   ├── rfid_logic.c|h                 # 触发词/去重纯逻辑（与 STM32 版逐字相同）
+│   ├── motor_logic.c|h                # 电机状态机纯逻辑（四版共享，主机可测）
+│   ├── card_uart.c|h                  # U13T 协议 + UART1 驱动（帧解析在 card_parse）
+│   ├── card_parse.c|h                 # 帧解析纯逻辑（主机可测）
+│   ├── tts.c|h                        # TTS 发送 + 默认设置（UART2）
+│   ├── motor_drv.c|h                  # LEDC 双通道互补电机驱动
+│   ├── led.c|h  adc.c|h  debug.c|h    # LED / 电位器 / 调试输出
+├── esp32_tts_rtos/                    # RTOS 版（仅应用层差异文件）
 │   ├── docs/01-项目说明.md
-│   ├── CMakeLists.txt                 # 顶层（project + 引入 main）
-│   ├── sdkconfig                      # 首次 set-target 生成
+│   ├── CMakeLists.txt                 # EXTRA_COMPONENT_DIRS 指向 ../components
 │   └── main/
-│       ├── CMakeLists.txt
-│       ├── config.h                   # 全部可调参数（移植）
+│       ├── CMakeLists.txt             # SRCS：app_main + rfid_task + motor_task
 │       ├── app_main.c                 # 入口：初始化 + 创建两任务
-│       ├── rfid_task.c|h              # 读卡任务（状态机移植）
-│       ├── motor_task.c|h             # 电机任务（绝对计时状态机移植）
-│       ├── rfid_logic.c|h             # 纯逻辑层（与 STM32 版逐字相同）
-│       ├── card_uart.c|h              # U13T 协议 + ESP-IDF UART 驱动
-│       ├── tts.c|h                    # TTS 发送（UART2）
-│       ├── motor_drv.c|h              # LEDC 电机驱动（Motor_Control 接口）
-│       ├── led.c|h                    # LED
-│       ├── adc.c|h                    # 电位器采样
-│       └── debug.c|h                  # Dbg_Printf → console
-├── esp32_tts_baremetal/               # 裸机版（结构同上，rfid_process.c / motor_process.c）
+│       ├── rfid_task.c|h              # 读卡任务（状态机）
+│       └── motor_task.c|h             # 电机任务（薄壳：喂 motor_logic）
+├── esp32_tts_baremetal/               # 裸机版（app_main + rfid_process + motor_process）
 │   └── docs/01-项目说明.md
-└── tests/                             # 主机单元测试（rfid_logic 复用 + 帧解析）
-    ├── run_tests.sh
-    ├── test_logic.c
-    └── test_card_esp.c
+└── tests/                             # 主机单元测试
+    ├── run_tests.sh                   # 含共享文件漂移检查
+    ├── test_logic.c                   # rfid_logic
+    ├── test_card_parse.c              # card_parse 帧解析
+    └── test_motor_logic.c             # motor_logic 电机状态机（真实 C 代码）
 ```
 
 ---
@@ -142,14 +147,12 @@ cd esp32/tests && ./run_tests.sh
 
 ---
 
-## 8. ⚠️ 设计决策（待确认，确认后开始写代码）
+## 8. 设计决策（已确认并实施）
 
-| # | 决策项 | 本方案默认值 | 备选 |
-|---|---|---|---|
-| 1 | 电机驱动方式 | **方案 A**：LEDC 双通道互补（GPIO4/5），`Motor_Control(speed 0~999)` 接口与 STM32 版完全一致，逻辑零改动 | 方案 B：LEDC 单通道 PWM + IN1/IN2 方向 GPIO（需改电机逻辑） |
-| 2 | 调试输出口 | ✅ 已选 **USB-Serial-JTAG**（原生 USB 口，免转接；sdkconfig.defaults 配置 console） | ~~UART0 console~~ |
-| 3 | 项目名 | `esp32_tts_rtos` / `esp32_tts_baremetal` | 可改 |
-| 4 | 引脚分配 | 见第 2 节表格（全部 config.h 可改） | 按你的板子实际引脚调整 |
-| 5 | 电机 PWM 频率 | 20kHz（LEDC 常规值，高于 STM32 版 1kHz，更静音；速度语义不变） | 1kHz（与 STM32 版一致） |
-
-确认以上决策后，按 `docs/` 规划实施代码。
+| # | 决策项 | 已实施 |
+|---|---|---|
+| 1 | 电机驱动 | 方案 A：LEDC 双通道互补（GPIO4/5），接口与 STM32 版一致 |
+| 2 | 调试输出 | USB-Serial-JTAG console（sdkconfig.defaults 配置） |
+| 3 | 项目名 | `esp32_tts_rtos` / `esp32_tts_baremetal` |
+| 4 | 引脚 | 见第 2 节表格（GPIO 与外设实例统一在 `components/common/pins.h` 修改） |
+| 5 | 电机 PWM 频率 | 20kHz，10-bit |

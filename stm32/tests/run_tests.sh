@@ -22,7 +22,15 @@ gcc -std=c11 -Wall -Wextra -Werror \
 ./build/test_logic
 
 echo "========================================"
-echo "[3/3] 电机状态机仿真测试（Python）"
+echo "[3/4] motor_logic 电机状态机单元测试（真实 C 代码）"
+gcc -std=c11 -Wall -Wextra -Werror \
+    -I "$ROOT" -I "$ROOT/Task" \
+    test_motor_logic.c "$ROOT/Task/motor_logic.c" \
+    -o build/test_motor_logic
+./build/test_motor_logic
+
+echo "========================================"
+echo "[4/4] 电机状态机仿真测试（Python，规格级）"
 python3 sim_motor.py
 
 echo "========================================"

@@ -6,7 +6,8 @@
 /* ================= 电机时序（晚启动/缓启动） ================= */
 #define MOTOR_START_LATE_TIME_MS    2000    /* A：通电延时(ms)后电机才启动。默认2秒 */
 #define MOTOR_START_SLOW_TIME_MS    4000    /* B：缓启动时长(ms)，0→目标速度线性加速。默认4秒 */
-#define MOTOR_TARGET_SPEED          999     /* 电机目标速度(0~999)。999=最高电压输出 */
+#define MOTOR_SPEED_MAX             999     /* 电机速度上限（0~999，999=最高电压输出） */
+#define MOTOR_TARGET_SPEED          MOTOR_SPEED_MAX  /* 电机目标速度 */
 #define MOTOR_MAX_RUN_TIME_MS       (1000UL*1000UL)  /* 电机运行绝对上限：1000秒 */
 
 /* ================= 定时降速窗口（开机后仅一次） ================= */

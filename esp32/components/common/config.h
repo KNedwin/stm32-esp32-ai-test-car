@@ -6,7 +6,8 @@
 /* ================= 电机时序（晚启动/缓启动） ================= */
 #define MOTOR_START_LATE_TIME_MS    2000    /* A：通电延时(ms)后电机才启动。默认2秒 */
 #define MOTOR_START_SLOW_TIME_MS    4000    /* B：缓启动时长(ms)，0→目标速度线性加速。默认4秒 */
-#define MOTOR_TARGET_SPEED          999     /* 电机目标速度(0~999)。999=最高电压输出 */
+#define MOTOR_SPEED_MAX             999     /* 电机速度上限（0~999，999=最高电压输出） */
+#define MOTOR_TARGET_SPEED          MOTOR_SPEED_MAX  /* 电机目标速度 */
 #define MOTOR_MAX_RUN_TIME_MS       (1000UL*1000UL)  /* 电机运行绝对上限：1000秒 */
 
 /* ================= 定时降速窗口（开机后仅一次） ================= */
@@ -58,15 +59,13 @@ typedef struct {
 #define STOP_TIME_MIN_MS            (10*1000)    /* 停车时间下限：10秒 */
 #define STOP_TIME_MAX_MS            (10*60*1000) /* 停车时间上限：600秒(10分钟) */
 
-/* ================= 数据输出串口（USART3） ================= */
+/* ================= 数据输出口（ESP32：USB-Serial-JTAG console） ================= */
 #define DBG_USART_ENABLE            1       /* 总开关：1=启用输出 */
-#define DBG_USART_BAUD              115200  /* 输出串口波特率（需与上位机一致） */
 #define DBG_ECHO_RFID               1       /* 1=输出读卡数据 */
 #define DBG_ECHO_MOTOR              1       /* 1=输出电机状态 */
 #define DBG_ECHO_LED                1       /* 1=输出LED状态 */
 
 /* ================= 其他 ================= */
-#define RFID_DEBUG_MODE             0       /* 1=开启调试语音播报(比赛建议0) */
 #define RFID_READ_DATA_WHEN_START   1       /* 1=开机就尝试读卡(默认)；0=等刷卡才读 */
 #define RFID_SETTING_SPEAK_SPEED    1       /* 1=开机设置语速/音量/保存(默认) */
 

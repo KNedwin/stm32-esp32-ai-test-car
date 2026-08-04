@@ -10,7 +10,7 @@ typedef struct
 	int32_t  chinese_block_num;  /* 0=读块4，-3=回退读块1 */
 	int32_t  read_block;         /* 块地址基数 */
 
-	uint8_t  wait_time;          /* 读块响应超时计数(ms) */
+	uint32_t wait_tick;          /* 进入 WAIT 的时刻（真实时间差超时） */
 	uint8_t  wait_resend_times;  /* 读块响应超时重发计数 */
 
 	uint32_t led_tick;           /* 进入 LEDLIGHT 的时刻 */
