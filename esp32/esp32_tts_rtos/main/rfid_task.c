@@ -96,7 +96,7 @@ void RFID_Task(void *arg)
 		{
 			BufClear( rfid_control.chinese_data );
 			rfid_control.chinese_block_num = 0;
-			LED_Sta( 0 );
+			if( !Motor_IsInStopSequence() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
 			rfid_control.wait_resend_times = 0;
 			static uint32_t none_poll_tick = 0;
 			if( (now_ms() - none_poll_tick) >= 200UL )       /* 每 200ms 探测一次，不依赖模块自动上报 */
@@ -107,7 +107,7 @@ void RFID_Task(void *arg)
 		}
 		else if( card_res_flag == CARD_FLAG_LEDLIGHT )       /* LED 保持：轮询读卡号 */
 		{
-			LED_Sta( 1 );
+			if( !Motor_IsInStopSequence() ) LED_Sta( 1 );  /* 电机停车期间不碰 LED */
 			if( (now_ms() - rfid_control.led_tick) >= (uint32_t)RFID_READ_DELAY_MS )
 			{
 				/* 播报延时结束，开始轮询读卡号维持 LED */
@@ -120,7 +120,7 @@ void RFID_Task(void *arg)
 				/* 卡在场由 Card_Uart_Poll 刷新 rfid_last_card_tick；脱离 C 秒后熄灭 */
 				if( (now_ms() - rfid_last_card_tick) >= (uint32_t)LED_ON_TIME_S*1000UL )
 				{
-					LED_Sta( 0 );
+					if( !Motor_IsInStopSequence() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
 					card_res_flag = CARD_FLAG_NONE;
 				}
 			}
