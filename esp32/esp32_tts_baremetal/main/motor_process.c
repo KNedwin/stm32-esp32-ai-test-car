@@ -3,6 +3,7 @@
 #include "motor_drv.h"
 #include "adc.h"
 #include "debug.h"
+#include "led.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "esp_timer.h"
@@ -56,12 +57,24 @@ void Motor_Process(void)
 	spd = MotorLogic_Step(&motor_control, trig, now_ms());
 	Motor_ApplySpeed(spd);
 
-	if( motor_control.state != old_state )   /* 状态变化：边沿调试输出 */
+	if( motor_control.state != old_state )   /* 状态变化：边沿调试输出 + RGB LED 颜色 */
 	{
 #if DBG_ECHO_MOTOR
 		Dbg_Printf("[MOTOR] %s speed=%u\r\n",
 				   MotorLogic_StateName(motor_control.state), motor_control.speed);
 #endif
+		/* WS2812 RGB LED 颜色映射 */
+		switch( motor_control.state )
+		{
+			case MOTOR_STATE_IDLE:     LED_SetColor(LED_COLOR_BOOT);    break;
+			case MOTOR_STATE_RAMPUP:   LED_SetColor(LED_COLOR_RAMPUP);  break;
+			case MOTOR_STATE_RUN:      LED_SetColor(LED_COLOR_IDLE);    break;
+			case MOTOR_STATE_SLOW:     LED_SetColor(LED_COLOR_SLOWING); break;
+			case MOTOR_STATE_STOPPING: LED_SetColor(LED_COLOR_SLOWING); break;
+			case MOTOR_STATE_WAIT:     LED_SetColor(LED_COLOR_STOPPED); break;
+			case MOTOR_STATE_STOP:     LED_SetColor(LED_COLOR_OFF);     break;
+			default:                   break;
+		}
 	}
 }
 

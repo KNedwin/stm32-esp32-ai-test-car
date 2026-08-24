@@ -17,6 +17,7 @@ void LED_Init(void)
 		.intr_type = GPIO_INTR_DISABLE,
 	};
 	ESP_ERROR_CHECK(gpio_config(&io));
+	WS2812_Init();   /* 板载 RGB LED 初始化 */
 	LED_Sta(0);
 }
 
@@ -28,15 +29,22 @@ static void LED_Pins(uint8_t level)
 	gpio_set_level(PIN_LED3, level);
 }
 
+void LED_SetColor(led_color_t color)
+{
+	WS2812_SetColor(color);
+}
+
 void LED_Sta(uint8_t sta)
 {
 	switch( sta )
 	{
 		case 1:     /* 亮（低电平） */
 			LED_Pins(0);
+			WS2812_SetColor(LED_COLOR_CARD);  /* 绿色：读到卡 */
 			break;
 		case 0:     /* 灭（高电平） */
 			LED_Pins(1);
+			WS2812_SetColor(LED_COLOR_IDLE);  /* 微白：空闲 */
 			break;
 		default:
 			return;

@@ -65,6 +65,12 @@ typedef struct {
 #define DBG_ECHO_MOTOR              1       /* 1=输出电机状态 */
 #define DBG_ECHO_LED                1       /* 1=输出LED状态 */
 
+/* ================= 无硬件演示模式 ================= */
+#define DEMO_MODE                   0       /* 1=演示：模拟刷卡 + TTS hex 打印（无需外设）；0=真机 */
+
+/* ================= 板载 RGB LED（WS2812） ================= */
+#define LED_WS2812_PIN              48      /* ESP32-S3-DevKitC-1 板载 RGB LED */
+
 /* ================= 其他 ================= */
 #define RFID_READ_DATA_WHEN_START   1       /* 1=开机就尝试读卡(默认)；0=等刷卡才读 */
 #define RFID_SETTING_SPEAK_SPEED    1       /* 1=开机设置语速/音量/保存(默认) */

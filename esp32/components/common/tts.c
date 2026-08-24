@@ -6,6 +6,10 @@
 #include "freertos/task.h"
 #include "esp_check.h"
 
+#if DEMO_MODE
+#include <stdio.h>
+#endif
+
 #define TTS_BUF     256
 
 void TTS_Init(void)
@@ -33,7 +37,7 @@ void TTS_SetupDefaults(void)
 	vTaskDelay(pdMS_TO_TICKS(80));
 	TTS_Send((const uint8_t *)"<V>6");   /* 音量 */
 	vTaskDelay(pdMS_TO_TICKS(80));
-	TTS_Send((const uint8_t *)"<I>0");   /* 上电提示 + 断电保存 */
+	TTS_Send((const uint8_t *)"<I>1");   /* 关闭上电提示，仅断电保存 */
 	vTaskDelay(pdMS_TO_TICKS(200));
 #endif
 }
@@ -45,7 +49,17 @@ void TTS_Send(const uint8_t *str)
 	while( str[len] ) len++;
 	if( len > 0 )
 	{
+#if DEMO_MODE
+		/* 无硬件演示：打印即将发送的帧（hex），便于对照协议文档核对 */
+		printf("[TTS] send %2uB: ", len);
+		for( uint16_t i = 0; i < len; i++ )
+		{
+			printf("%02X ", str[i]);
+		}
+		printf("\r\n");
+#else
 		uart_write_bytes(TTS_UART, str, len);
 		uart_wait_tx_done(TTS_UART, pdMS_TO_TICKS(200));
+#endif
 	}
 }

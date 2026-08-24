@@ -160,6 +160,22 @@ static void RFID_HandleCardData(void)
 	{
 		Dbg_Printf("%02X ", rfid_control.chinese_data[i]);
 	}
+	/* 尝试 UTF-8 显示（GBK→UTF8 查找表） */
+	{
+		static const struct { uint8_t gbk[4]; uint8_t len; const char *utf8; } map[] = {
+			{ {0xCC,0xAB,0xD1,0xF4}, 4, "\xe5\xa4\xaa\xe9\x98\xb3" },  /* 太阳 */
+			{ {0xB5,0xD8,0xC7,0xF2}, 4, "\xe5\x9c\xb0\xe7\x90\x83" },  /* 地球 */
+		};
+		for( int i = 0; i < (int)(sizeof(map)/sizeof(map[0])); i++ )
+		{
+			if( rfid_control.chinese_data[0] == map[i].gbk[0] &&
+				rfid_control.chinese_data[1] == map[i].gbk[1] )
+			{
+				Dbg_Printf(" = %s", map[i].utf8);
+				break;
+			}
+		}
+	}
 	Dbg_Printf("\r\n");
 #endif
 
