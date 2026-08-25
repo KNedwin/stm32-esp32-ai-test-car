@@ -4,6 +4,7 @@
 #include "card_uart.h"
 #include "card_parse.h"
 #include "gbk_utf8.h"
+#include "nvs_params.h"
 #include "tts.h"
 #include "led.h"
 #include "debug.h"
@@ -120,7 +121,7 @@ void RFID_Task(void *arg)
 		else if( card_res_flag == CARD_FLAG_LEDLIGHT )       /* LED 保持：轮询读卡号 */
 		{
 			if( !Motor_IsBusyForLed() ) LED_Sta( 1 );  /* 电机停车期间不碰 LED */
-			if( (now_ms() - rfid_control.led_tick) >= (uint32_t)RFID_READ_DELAY_MS )
+			if( (now_ms() - rfid_control.led_tick) >= g_params.rfid_poll_ms )
 			{
 				/* 播报延时结束，开始轮询读卡号维持 LED */
 				static uint32_t poll_tick = 0;
@@ -130,7 +131,7 @@ void RFID_Task(void *arg)
 					Card_ReadCard();
 				}
 				/* 卡在场由 Card_Uart_Poll 刷新 rfid_last_card_tick；脱离 C 秒后熄灭 */
-				if( (now_ms() - rfid_last_card_tick) >= (uint32_t)LED_ON_TIME_S*1000UL )
+				if( (now_ms() - rfid_last_card_tick) >= g_params.led_on_ms )
 				{
 					if( !Motor_IsBusyForLed() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
 					card_res_flag = CARD_FLAG_NONE;

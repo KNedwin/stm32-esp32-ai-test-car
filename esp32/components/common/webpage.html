@@ -41,14 +41,18 @@ button.add{background:#3aa657;padding:6px 12px;font-size:14px}
 <fieldset><legend>触发词（输入中文自动转GBK）</legend>
 <div id="rulelist"></div>
 <button class="add" onclick="addRule()">＋ 添加触发词</button>
-<p style="color:#777;margin:6px 0 0">次数=需连续有效刷卡次数；间隔≥计数间隔才有效。</p>
+<div class="row"><label>计数间隔(秒)</label><input id="ci" type="number" step="0.1"></div>
+<p style="color:#777;margin:6px 0 0">
+次数=1：刷到该卡立即播报并触发停车（整个上电周期仅触发一次）。<br>
+次数=N(≥2)：需 N 次有效刷卡，相邻两次有效刷卡间隔必须 ≥ 上方计数间隔，间隔不足不累计。<br>
+已触发的词之后只播报不再停车。示例：地球设2次/间隔10秒 → 刷一次，隔10秒以上再刷一次即停车。
+</p>
 </fieldset>
 
 <fieldset><legend>读卡与播报</legend>
 <div class="row"><label>卡离场LED延时(秒)</label><input id="led" type="number" step="0.1"></div>
 <div class="row"><label>播报去重窗口(秒)</label><input id="dedup" type="number" step="0.1"></div>
 <div class="row"><label>读卡轮询间隔(秒)</label><input id="poll" type="number" step="0.1"></div>
-<div class="row"><label>计数间隔(秒)</label><input id="ci" type="number" step="0.1"></div>
 </fieldset>
 
 <button onclick="save()">💾 保存并重启板子</button>
