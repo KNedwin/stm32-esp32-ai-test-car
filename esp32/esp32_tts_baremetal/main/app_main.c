@@ -5,7 +5,6 @@
 #include "debug.h"
 #include "tts.h"
 #include "card_uart.h"
-#include "adc.h"
 #include "config_mode.h"
 #include "nvs_params.h"
 #include "rfid_process.h"
@@ -14,7 +13,7 @@
 /**
  * 裸机版入口：单任务超级循环（顺序执行两个非阻塞状态机）
  * 所有延时均非阻塞（esp_timer 时间差）；vTaskDelay(1) 让出 CPU 防看门狗。
- * 注意：FreeRTOS 默认 100Hz 节拍，vTaskDelay(1)=10ms。
+ * 注意：CONFIG_FREERTOS_HZ=1000，vTaskDelay(1)=1ms。
  */
 void app_main(void)
 {

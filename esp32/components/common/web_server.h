@@ -5,7 +5,7 @@
  * GET  /            配置页面（内嵌 webpage.html）
  * GET  /api/params  当前参数 JSON（触发词转 UTF-8 文本）
  * POST /api/params  JSON 提交（触发词转 GBK），sanitize 后存 NVS
- * POST /api/restart 保存并重启
+ * POST /api/restart 仅重启（参数保存在 POST /api/params 内完成）
  *
  * 空闲超时：web_server_idle_seconds() 供配置模式监控自动退出 */
 void web_server_start(void);

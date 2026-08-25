@@ -43,6 +43,16 @@ static uint8_t set_scalar(const char *key, double v)
     return 1;
 }
 
+/* 秒值输出：<1s 保留一位小数（如 0.8），避免整除截断为 0 */
+static void print_sec(uint32_t ms)
+{
+    if (ms % 1000u == 0)
+        Dbg_Printf("%lu", (unsigned long)(ms / 1000u));
+    else
+        Dbg_Printf("%lu.%lu", (unsigned long)(ms / 1000u),
+                   (unsigned long)((ms % 1000u) / 100u));
+}
+
 static void respond(const char *s)
 {
     Dbg_Printf("> %s\r\n", s);
@@ -71,7 +81,7 @@ void param_cli_execute(char *line)
     if (!strcmp(cmd, "HELP"))
     {
         /* Dbg_Printf 单条限 128 字节，HELP 拆两行 */
-        respond("cmds: GET all|<key> ; SET <key> <val> ; SAVE ; DUMP ; ISP ; REBOOT");
+        respond("cmds: GET all|win|rule ; SET <key> <val> ; SAVE ; DUMP ; ISP ; REBOOT");
         respond("      SET win_add <s> <d> <p> / win_del <i> ; SET rule_add <gbkhex> <cnt> <spk> / rule_del <i>");
     }
     else if (!strcmp(cmd, "GET"))
@@ -79,17 +89,22 @@ void param_cli_execute(char *line)
         char *k = strtok_r(NULL, sep, &save);
         if (!k || !strcmp(k, "all"))
         {
-            Dbg_Printf("> {\"late_s\":%lu,\"slow_s\":%lu,\"target\":%u,\"dir\":%u,"
-                   "\"sr_s\":%lu,\"ws_s\":%lu,\"led_s\":%lu,\"dedup_s\":%lu,"
-                   "\"poll_s\":%lu,\"ci_s\":%lu,\"as_s\":%lu,"
-                   "\"win_n\":%u,\"rule_n\":%u}\r\n",
-                   (unsigned long)(g_params.late_ms/1000), (unsigned long)(g_params.slow_ms/1000),
-                   g_params.target_speed, g_params.motor_dir,
-                   (unsigned long)(g_params.stop_ramp_ms/1000), (unsigned long)(g_params.wait_ms/1000),
-                   (unsigned long)(g_params.led_on_ms/1000), (unsigned long)(g_params.dedup_ms/1000),
-                   (unsigned long)(g_params.rfid_poll_ms/1000), (unsigned long)(g_params.count_interval_ms/1000),
-                   (unsigned long)(g_params.autostop_ms/1000),
-                   g_params.slowwin_count, g_params.rule_count);
+            /* 拆两行输出：Dbg_Printf 单条限 128 字节，整包约 140B 尾部会截断；
+             * host.py 按行解析 kv 对，多行格式完全兼容。 */
+            Dbg_Printf("> {\"late_s\":");
+            print_sec(g_params.late_ms);
+            Dbg_Printf(",\"slow_s\":");   print_sec(g_params.slow_ms);
+            Dbg_Printf(",\"target\":%u,\"dir\":%u,", g_params.target_speed, g_params.motor_dir);
+            Dbg_Printf("\"sr_s\":");      print_sec(g_params.stop_ramp_ms);
+            Dbg_Printf(",\"ws_s\":");     print_sec(g_params.wait_ms);
+            Dbg_Printf("}\r\n");
+            Dbg_Printf("  {\"led_s\":");  print_sec(g_params.led_on_ms);
+            Dbg_Printf(",\"dedup_s\":");  print_sec(g_params.dedup_ms);
+            Dbg_Printf(",\"poll_s\":");   print_sec(g_params.rfid_poll_ms);
+            Dbg_Printf(",\"ci_s\":");     print_sec(g_params.count_interval_ms);
+            Dbg_Printf(",\"as_s\":");     print_sec(g_params.autostop_ms);
+            Dbg_Printf(",\"win_n\":%u,\"rule_n\":%u}\r\n",
+                       g_params.slowwin_count, g_params.rule_count);
         }
         else if (!strcmp(k, "win"))          /* 每窗口一行: > W i start_s dur_s pct */
         {

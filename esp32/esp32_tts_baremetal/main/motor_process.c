@@ -2,7 +2,6 @@
 #include "config.h"
 #include "motor_drv.h"
 #include "nvs_params.h"
-#include "adc.h"
 #include "debug.h"
 #include "led.h"
 #include "freertos/FreeRTOS.h"

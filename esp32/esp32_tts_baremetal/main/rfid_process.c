@@ -45,7 +45,7 @@ void RFID_Init(void)
 /**
  * RFID 状态机（非阻塞，主循环每圈调用）。
  * EXIST(读块) → WAIT(等响应) → RESDATA(处理) → LEDLIGHT(亮灯轮询保持) → NONE
- * 注意：FreeRTOS 默认 100Hz 节拍，vTaskDelay(1)=10ms；所有超时用真实时间差判断。
+ * 注意：CONFIG_FREERTOS_HZ=1000，vTaskDelay(1)=1ms；所有超时用真实时间差判断。
  */
 void RFID_Process(void)
 {
@@ -95,7 +95,7 @@ void RFID_Process(void)
 
 	if( card_res_flag == CARD_FLAG_WAIT )                /* 等待模块响应 */
 	{
-		/* 真实时间差超时（不依赖 vTaskDelay 节拍，避免 100Hz 下漂移 10 倍）。
+		/* 真实时间差超时（不依赖 vTaskDelay 节拍，tick 变更不影响时序）。
 		 * 语义：等 20ms 无响应 → 重发；重发 2 次仍无响应 → 放弃（初始+2 重发=3 次命令） */
 		if( (now_ms() - rfid_control.wait_tick) >= (uint32_t)RFID_READ_TIMEOUT_MS )
 		{

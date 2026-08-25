@@ -5,7 +5,6 @@
 #include "debug.h"
 #include "tts.h"
 #include "card_uart.h"
-#include "adc.h"
 #include "config_mode.h"
 #include "nvs_params.h"
 #include "rfid_task.h"
