@@ -17,7 +17,7 @@ static const rgb_t color_table[LED_COLOR_COUNT] = {
     [LED_COLOR_CARD]    = {  0, 60,  0},
     [LED_COLOR_SLOWING] = { 60, 40,  0},
     [LED_COLOR_STOPPED] = { 60,  0,  0},
-    [LED_COLOR_RAMPUP]  = { 40, 20,  0},
+    [LED_COLOR_RAMPUP]  = {  0, 50, 60},   /* 天蓝 */
     [LED_COLOR_OFF]     = {  0,  0,  0},
 };
 

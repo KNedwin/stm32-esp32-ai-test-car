@@ -13,6 +13,10 @@
 
 rfid_control_t rfid_control;
 
+/* 绿色确认窗：触发后先亮绿 TRIGGER_ACK_GREEN_MS 再启动停车序列 */
+static uint8_t  s_trig_pending = 0;
+static uint32_t s_trig_pending_tick = 0;
+
 /* 时间基准：esp_timer（微秒）→ 毫秒（截断为 32 位，差值比较在回绕下仍正确） */
 static inline uint32_t now_ms(void)
 {
@@ -39,6 +43,13 @@ void RFID_Task(void *arg)
 
 	for(;;)
 	{
+		/* 绿色确认窗到期 → 正式触发停车序列 */
+		if( s_trig_pending && (now_ms() - s_trig_pending_tick) >= (uint32_t)TRIGGER_ACK_GREEN_MS )
+		{
+			motor_trigger_flag = 1;
+			s_trig_pending = 0;
+		}
+
 		Card_Uart_Poll();    /* 消费读卡串口接收（非阻塞） */
 
 		if( card_res_flag == CARD_FLAG_EXIST )               /* 检测到卡，读块 */
@@ -96,7 +107,7 @@ void RFID_Task(void *arg)
 		{
 			BufClear( rfid_control.chinese_data );
 			rfid_control.chinese_block_num = 0;
-			if( !Motor_IsInStopSequence() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
+			if( !Motor_IsBusyForLed() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
 			rfid_control.wait_resend_times = 0;
 			static uint32_t none_poll_tick = 0;
 			if( (now_ms() - none_poll_tick) >= 200UL )       /* 每 200ms 探测一次，不依赖模块自动上报 */
@@ -107,7 +118,7 @@ void RFID_Task(void *arg)
 		}
 		else if( card_res_flag == CARD_FLAG_LEDLIGHT )       /* LED 保持：轮询读卡号 */
 		{
-			if( !Motor_IsInStopSequence() ) LED_Sta( 1 );  /* 电机停车期间不碰 LED */
+			if( !Motor_IsBusyForLed() ) LED_Sta( 1 );  /* 电机停车期间不碰 LED */
 			if( (now_ms() - rfid_control.led_tick) >= (uint32_t)RFID_READ_DELAY_MS )
 			{
 				/* 播报延时结束，开始轮询读卡号维持 LED */
@@ -120,7 +131,7 @@ void RFID_Task(void *arg)
 				/* 卡在场由 Card_Uart_Poll 刷新 rfid_last_card_tick；脱离 C 秒后熄灭 */
 				if( (now_ms() - rfid_last_card_tick) >= (uint32_t)LED_ON_TIME_S*1000UL )
 				{
-					if( !Motor_IsInStopSequence() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
+					if( !Motor_IsBusyForLed() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
 					card_res_flag = CARD_FLAG_NONE;
 				}
 			}
@@ -181,7 +192,8 @@ static void RFID_HandleCardData(void)
 
 	if( ev & RFID_EV_TRIGGER_STOP )
 	{
-		motor_trigger_flag = 1;
+		s_trig_pending = 1;                 /* 先亮绿确认，延时后再停车 */
+		s_trig_pending_tick = now_ms();
 	}
 	if( ev & (RFID_EV_SPEAK | RFID_EV_SPEAK_FORCED) )
 	{

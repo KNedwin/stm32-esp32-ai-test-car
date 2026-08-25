@@ -87,3 +87,10 @@ uint8_t Motor_IsInStopSequence(void)
 {
 	return MotorLogic_IsInStopSequence(&motor_control);
 }
+
+/* LED 占用：停车序列 + RAMPUP（缓启动期间 rfid 不得覆盖 RGB 颜色） */
+uint8_t Motor_IsBusyForLed(void)
+{
+	return (uint8_t)(MotorLogic_IsInStopSequence(&motor_control) ||
+					 motor_control.state == MOTOR_STATE_RAMPUP);
+}

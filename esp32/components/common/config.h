@@ -45,6 +45,7 @@ typedef struct {
 #define TRIGGER_COUNT_INTERVAL_MS  (10*1000)  /* 计数型词两次有效计数最小间隔(ms)。默认10秒 */
 #define TRIGGER_STOP_RAMP_TIME_S   2          /* H：触发停车减速过程耗时(秒)。默认2秒 */
 #define TRIGGER_WAIT_TIME_S        10         /* I：停住后静止等待(秒)。默认10秒 */
+#define TRIGGER_ACK_GREEN_MS       500        /* 触发后绿色确认窗(ms)：先亮绿再进入减速 */
 
 /* ================= LED 与播报去重 ================= */
 #define RFID_BLOCK_SIZE             16      /* 读卡单块数据字节数（S50 一块=16字节） */
