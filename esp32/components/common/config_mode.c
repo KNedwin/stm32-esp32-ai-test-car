@@ -1,7 +1,10 @@
 #include "config_mode.h"
 #include "config.h"
 #include "ws2812.h"
+#include "wifi_ap.h"
+#include "web_server.h"
 #include "debug.h"
+#include "esp_system.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "nvs_flash.h"
@@ -32,11 +35,29 @@ static void cfg_count_write(uint8_t v)
     }
 }
 
-/* 延时清零任务：持续运行超过阈值即认为不是配置手势 */
+/* 延时清零任务：持续运行超过阈值即认为不是配置手势
+ * 注意：栈必须足够大——NVS 写入调用链峰值 >1.5KB，过小会栈溢出panic重启 */
 static void cfg_clear_task(void *arg)
 {
     vTaskDelay(pdMS_TO_TICKS(CFG_CLEAR_AFTER_MS));
-    cfg_count_write(0);
+
+    nvs_handle_t h;
+    uint8_t cur = 0;
+    int wrote = 0;
+
+    if (nvs_open(CFG_NS, NVS_READWRITE, &h) == ESP_OK)
+    {
+        nvs_get_u8(h, CFG_KEY_CNT, &cur);
+        if (cur != 0)
+        {
+            nvs_set_u8(h, CFG_KEY_CNT, 0);
+            nvs_commit(h);
+            wrote = 1;
+        }
+        nvs_close(h);
+    }
+
+    printf("[CFG] counter cleared (was %u, wrote=%d)\r\n", cur, wrote);
     vTaskDelete(NULL);
 }
 
@@ -89,21 +110,27 @@ void config_mode_boot_check(void)
         }
     }
 
-    xTaskCreate(cfg_clear_task, "cfgclr", 1536, NULL, 1, NULL);
+    xTaskCreate(cfg_clear_task, "cfgclr", 4096, NULL, 1, NULL);
 }
 
 void config_mode_run(void)
 {
-    printf("[CFG] enter config mode\r\n");
+    printf("[CFG] enter config mode: WiFi EV-Car-Setup -> http://192.168.4.1\r\n");
     Dbg_Printf("[CFG] config mode\r\n");
 
-    /* 阶段四将替换为：启动 WiFi AP + HTTP 服务，超时退出重启。
-     * 当前为可测试的占位实现：蓝色快闪循环。 */
+    WS2812_SetColor(LED_COLOR_BOOT);       /* 常亮蓝 = 配置模式中 */
+
+    wifi_ap_start();
+    web_server_start();
+
+    /* 空闲监控：5 分钟无 HTTP 活动自动重启回正常模式（防呆） */
     while (1)
     {
-        WS2812_SetColor(LED_COLOR_BOOT);   /* 蓝 */
-        vTaskDelay(pdMS_TO_TICKS(150));
-        WS2812_SetColor(LED_COLOR_OFF);
-        vTaskDelay(pdMS_TO_TICKS(150));
+        vTaskDelay(pdMS_TO_TICKS(5000));
+        if (web_server_idle_seconds() >= 300)
+        {
+            printf("[CFG] idle timeout, restart\\r\\n");
+            esp_restart();
+        }
     }
 }
