@@ -3,6 +3,7 @@
 #include "config.h"
 #include "card_uart.h"
 #include "card_parse.h"
+#include "gbk_utf8.h"
 #include "tts.h"
 #include "led.h"
 #include "debug.h"
@@ -178,21 +179,12 @@ static void RFID_HandleCardData(void)
 	{
 		Dbg_Printf("%02X ", rfid_control.chinese_data[i]);
 	}
-	/* UTF-8 查找表 */
+	/* GBK→UTF-8 转换显示（任意卡内容，查表覆盖 GB2312 全区） */
 	{
-		static const struct { uint8_t gbk[4]; uint8_t len; const char *utf8; } map[] = {
-			{ {0xCC,0xAB,0xD1,0xF4}, 4, "\xe5\xa4\xaa\xe9\x98\xb3" },
-			{ {0xB5,0xD8,0xC7,0xF2}, 4, "\xe5\x9c\xb0\xe7\x90\x83" },
-		};
-		for( int i = 0; i < (int)(sizeof(map)/sizeof(map[0])); i++ )
-		{
-			if( rfid_control.chinese_data[0] == map[i].gbk[0] &&
-				rfid_control.chinese_data[1] == map[i].gbk[1] )
-			{
-				Dbg_Printf(" = %s", map[i].utf8);
-				break;
-			}
-		}
+		char    ubuf[48];
+		uint8_t dlen = (uint8_t)strnlen((const char *)rfid_control.chinese_data, RFID_BLOCK_SIZE);
+		if( gbk_to_utf8(rfid_control.chinese_data, dlen, ubuf, sizeof(ubuf)) > 0 )
+			Dbg_Printf(" = %s", ubuf);
 	}
 	Dbg_Printf("\r\n");
 #endif

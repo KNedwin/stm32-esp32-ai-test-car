@@ -23,12 +23,20 @@ gcc -std=c11 -Wall -Wextra -Werror \
 ./build/test_card_parse
 
 echo "========================================"
-echo "[3/3] motor_logic 电机状态机单元测试（真实 C 代码）"
+echo "[3/4] motor_logic 电机状态机单元测试（真实 C 代码）"
 gcc -std=c11 -Wall -Wextra -Werror \
     -I "$COMMON" \
     test_motor_logic.c "$COMMON/motor_logic.c" \
     -o build/test_motor_logic
 ./build/test_motor_logic
+
+echo "========================================"
+echo "[4/4] gbk_utf8 编码转换单元测试（GB2312⇄UTF-8）"
+gcc -std=c11 -Wall -Wextra -Werror \
+    -I "$COMMON" \
+    test_gbk_utf8.c "$COMMON/gbk_utf8.c" \
+    -o build/test_gbk_utf8
+./build/test_gbk_utf8
 
 echo "========================================"
 echo "共享组件漂移检查（两版 main 差异文件清单）"
