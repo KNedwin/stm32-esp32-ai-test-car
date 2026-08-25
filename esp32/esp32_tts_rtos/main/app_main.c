@@ -31,6 +31,7 @@ void app_main(void)
 
 	/* 运行时参数加载（NVS 初始化 + 读参数）：必须先于 config_mode 检测 */
 	params_init();
+	Motor_SetDirection(g_params.motor_dir);   /* 应用电机转向参数 */
 
 	/* 配置模式检测：连按3次RST（快速通断电）触发 */
 	config_mode_boot_check();
