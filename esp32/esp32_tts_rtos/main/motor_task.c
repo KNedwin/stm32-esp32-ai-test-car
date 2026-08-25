@@ -1,7 +1,7 @@
 #include "motor_task.h"
 #include "config.h"
 #include "motor_drv.h"
-#include "adc.h"
+#include "nvs_params.h"
 #include "debug.h"
 #include "led.h"
 #include "freertos/FreeRTOS.h"
@@ -25,18 +25,9 @@ static void Motor_ApplySpeed(uint16_t speed);
  */
 void Motor_Task(void *arg)
 {
-	uint32_t adc_value = 0;
-	uint8_t  i;
-
-	for( i = 0; i < 20; i++ )
-	{
-		adc_value += Get_ADC_Value();
-		vTaskDelay(pdMS_TO_TICKS(1));
-	}
-	adc_value /= 20;
-
-	MotorLogic_Init(&motor_control, now_ms(), MOTOR_TARGET_SPEED,
-					MotorLogic_CalcStopTime(adc_value));
+	/* 自动停车时间来自网页参数（原电位器功能网页化） */
+	MotorLogic_Init(&motor_control, now_ms(), g_params.target_speed,
+					g_params.autostop_ms);
 	Motor_ApplySpeed(0);
 
 #if DBG_ECHO_MOTOR

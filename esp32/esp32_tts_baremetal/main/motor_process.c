@@ -1,6 +1,7 @@
 #include "motor_process.h"
 #include "config.h"
 #include "motor_drv.h"
+#include "nvs_params.h"
 #include "adc.h"
 #include "debug.h"
 #include "led.h"
@@ -20,22 +21,12 @@ static inline uint32_t now_ms(void)
 static void Motor_ApplySpeed(uint16_t speed);
 
 /**
- * 电机初始化：电位器采样 20 次平均 → stop_time（阻塞，初始化阶段）
+ * 电机初始化：自动停车时间取网页参数（原电位器功能网页化）
  */
 void Motor_Init(void)
 {
-	uint32_t adc_value = 0;
-	uint8_t  i;
-
-	for( i = 0; i < 20; i++ )
-	{
-		adc_value += Get_ADC_Value();
-		vTaskDelay(pdMS_TO_TICKS(1));
-	}
-	adc_value /= 20;
-
-	MotorLogic_Init(&motor_control, now_ms(), MOTOR_TARGET_SPEED,
-					MotorLogic_CalcStopTime(adc_value));
+	MotorLogic_Init(&motor_control, now_ms(), g_params.target_speed,
+					g_params.autostop_ms);
 	Motor_ApplySpeed(0);
 
 #if DBG_ECHO_MOTOR

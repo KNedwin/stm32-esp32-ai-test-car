@@ -24,6 +24,7 @@ static const params_t PARAMS_DEFAULT = {
     .led_on_ms      = LED_ON_TIME_S * 1000UL,
     .dedup_ms       = SPEAK_DEDUP_TIME_S * 1000UL,
     .rfid_poll_ms   = RFID_READ_DELAY_MS,
+    .autostop_ms    = 300000UL,      /* 默认5分钟（原电位器中位附近） */
 };
 
 params_t g_params;
@@ -102,6 +103,8 @@ int params_sanitize(params_t *p)
     p->led_on_ms         = CLAMP_U32(p->led_on_ms, 500, 30000);
     p->dedup_ms          = CLAMP_U32(p->dedup_ms, 500, 60000);
     p->rfid_poll_ms      = CLAMP_U32(p->rfid_poll_ms, 100, 5000);
+    /* 自动停车：10s~1000s（后者为状态机绝对上限 MOTOR_MAX_RUN_TIME_MS） */
+    p->autostop_ms       = CLAMP_U32(p->autostop_ms, 10000, 1000000UL);
 
     return fixed;
 }

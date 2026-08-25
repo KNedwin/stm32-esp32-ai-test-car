@@ -43,6 +43,7 @@ typedef struct {
     uint32_t led_on_ms;              /* C */
     uint32_t dedup_ms;               /* D */
     uint32_t rfid_poll_ms;
+    uint32_t autostop_ms;            /* 自动停车总时长（原电位器功能网页化） */
 } params_t;
 
 extern params_t g_params;

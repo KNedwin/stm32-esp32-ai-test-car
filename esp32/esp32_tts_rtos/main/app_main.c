@@ -27,7 +27,6 @@ void app_main(void)
 	Dbg_Init();                 /* 数据输出口（[SYS] boot） */
 	Card_Uart_Init();           /* 读卡 UART1 + 波特率切换 9600→115200 */
 	TTS_Init();                 /* 语音 UART2 */
-	ADC_Init();                 /* 电位器 ADC */
 
 	/* 运行时参数加载（NVS 初始化 + 读参数）：必须先于 config_mode 检测 */
 	params_init();

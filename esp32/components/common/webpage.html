@@ -30,6 +30,7 @@ button.add{background:#3aa657;padding:6px 12px;font-size:14px}
 <div class="row"><label>电机转向</label><select id="dir"><option value="0">正转</option><option value="1">反转</option></select></div>
 <div class="row"><label>停车减速时间(秒)</label><input id="sr" type="number" step="0.1"></div>
 <div class="row"><label>静止等待时间(秒)</label><input id="ws" type="number" step="0.1"></div>
+<div class="row"><label>自动停车总时长(秒)</label><input id="as" type="number" min="10" max="1000"> <span style="color:#888;font-size:12px">运行到此时间自动永久停止(10~1000)，断电重启恢复</span></div>
 </fieldset>
 
 <fieldset><legend>减速窗口列表（多段降速）</legend>
@@ -68,6 +69,7 @@ function load(){
     $("sr").value=ms2s(p.stop_ramp_ms); $("ws").value=ms2s(p.wait_ms);
     $("led").value=ms2s(p.led_on_ms); $("dedup").value=ms2s(p.dedup_ms);
     $("poll").value=ms2s(p.rfid_poll_ms); $("ci").value=ms2s(p.count_interval_ms);
+    $("as").value=ms2s(p.autostop_ms||300000);
     wins=(p.slowwins||[]).map(function(w){return{start_s:w.start_ms/1000,dur_s:w.dur_ms/1000,pct:w.pct};});
     rules=(p.rules||[]).map(function(r){return{text:r.text,count:r.count,speak:r.speak};});
     renderWins(); renderRules();
@@ -124,6 +126,7 @@ function collect(){
     stop_ramp_s:num("sr"), wait_s:num("ws"),
     led_on_s:num("led"), dedup_s:num("dedup"), poll_s:num("poll"),
     count_interval_s:num("ci"),
+    autostop_s:(function(){var v=parseInt($("as").value);return isNaN(v)?300:v;})(),
     slowwins:wins.map(function(w){return{start_s:w.start_s,dur_s:w.dur_s,pct:w.pct};}),
     rules:rules.map(function(r){return{text:r.text,count:r.count,speak:r.speak};})
   };

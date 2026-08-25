@@ -46,6 +46,7 @@ static char *build_params_json(void)
     cJSON_AddNumberToObject(root, "dedup_ms",       (double)g_params.dedup_ms);
     cJSON_AddNumberToObject(root, "rfid_poll_ms",   (double)g_params.rfid_poll_ms);
     cJSON_AddNumberToObject(root, "count_interval_ms", (double)g_params.count_interval_ms);
+    cJSON_AddNumberToObject(root, "autostop_ms",    (double)g_params.autostop_ms);
 
     cJSON *wins = cJSON_AddArrayToObject(root, "slowwins");
     for (int i = 0; i < g_params.slowwin_count; i++)
@@ -112,6 +113,8 @@ static void apply_json_to_params(cJSON *root)
         g_params.rfid_poll_ms = (uint32_t)(it->valuedouble * 1000);
     if ((it = cJSON_GetObjectItem(root, "count_interval_s")) && cJSON_IsNumber(it))
         g_params.count_interval_ms = (uint32_t)(it->valuedouble * 1000);
+    if ((it = cJSON_GetObjectItem(root, "autostop_s")) && cJSON_IsNumber(it))
+        g_params.autostop_ms = (uint32_t)(it->valuedouble * 1000);
 
     if ((it = cJSON_GetObjectItem(root, "slowwins")) && cJSON_IsArray(it))
     {
