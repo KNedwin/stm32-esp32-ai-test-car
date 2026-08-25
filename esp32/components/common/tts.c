@@ -37,7 +37,7 @@ void TTS_SetupDefaults(void)
 	vTaskDelay(pdMS_TO_TICKS(80));
 	TTS_Send((const uint8_t *)"<V>6");   /* 音量 */
 	vTaskDelay(pdMS_TO_TICKS(80));
-	TTS_Send((const uint8_t *)"<I>1");   /* 关闭上电提示，仅断电保存 */
+	TTS_Send((const uint8_t *)"<I>7");   /* 上电提示音选7号(试听选定)；<I>指令启用断电保存 */
 	vTaskDelay(pdMS_TO_TICKS(200));
 #endif
 }
