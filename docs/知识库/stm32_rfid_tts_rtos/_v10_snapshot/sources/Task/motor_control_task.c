@@ -1,7 +1,7 @@
 #include "motor_control_task.h"
 #include "cmsis_os.h"
 #include "config.h"
-#include "BSP_ADC.h"
+#include "nvs_params.h"
 #include "PWM.h"
 #include "Debug.h"
 
@@ -10,21 +10,13 @@ volatile uint8_t motor_trigger_flag = 0;
 
 static void Motor_ApplySpeed(uint16_t speed);
 
-/* 电机初始化：电位器采样 20 次平均 → stop_time（阻塞，任务开头） */
+/* 电机初始化：自动停车时间取运行时参数（原电位器采样已退役） */
 void Motor_Init(void)
 {
-    uint32_t adc_value = 0;
-    uint8_t  i;
+    Motor_SetDirection(g_params.motor_dir);   /* 应用转向参数 */
 
-    for( i = 0; i < 20; i++ )
-    {
-        adc_value += Get_ADC_Value();
-        osDelay(1);
-    }
-    adc_value /= 20;
-
-    MotorLogic_Init(&motor_control, HAL_GetTick(), MOTOR_TARGET_SPEED,
-                    MotorLogic_CalcStopTime(adc_value));
+    MotorLogic_Init(&motor_control, HAL_GetTick(), g_params.target_speed,
+                    g_params.autostop_ms);
     Motor_ApplySpeed(0);
 
 #if DBG_ECHO_MOTOR

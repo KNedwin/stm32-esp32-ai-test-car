@@ -16,6 +16,30 @@ typedef enum
     MOTOR_STATE_STOP         /* 已停止（电位器到时/1000s 上限） */
 } motor_state_t;
 
+/* ============ 运行时可调时序（Setter 注入，默认=宏值） ============ */
+#define MOTOR_SLOWWIN_MAX   8
+typedef struct
+{
+    uint32_t late_ms;        /* A */
+    uint32_t slow_ms;        /* B */
+    uint32_t stop_ramp_ms;   /* H */
+    uint32_t wait_ms;        /* I */
+    struct { uint32_t start_ms, dur_ms; uint16_t pct; } slowwin[MOTOR_SLOWWIN_MAX];
+    uint8_t  slowwin_count;
+} motor_timing_t;
+
+/* 默认时序（= 原 config.h 宏），STM32 调用方可显式传入 */
+#define MOTOR_TIMING_DEFAULT \
+{ \
+    .late_ms = MOTOR_START_LATE_TIME_MS, .slow_ms = MOTOR_START_SLOW_TIME_MS, \
+    .stop_ramp_ms = TRIGGER_STOP_RAMP_TIME_S * 1000UL, .wait_ms = TRIGGER_WAIT_TIME_S * 1000UL, \
+    .slowwin = { { MOTOR_TIME_START_S * 1000UL, MOTOR_TIME_DURATION_S * 1000UL, MOTOR_SPEED_PERCENT } }, \
+    .slowwin_count = 1, \
+}
+
+/* 运行时可调时序注入：不调用则使用默认宏值 */
+void MotorLogic_SetTiming(const motor_timing_t *tm);
+
 /* 电机状态机纯逻辑状态（无硬件/OS 依赖，主机可测） */
 typedef struct
 {
@@ -28,6 +52,7 @@ typedef struct
     uint16_t speed;          /* 当前输出速度 */
     uint16_t ramp_start;     /* 减速起点速度（进入 STOPPING 时记录） */
     uint8_t  pending_trigger;/* 未消费的触发请求（IDLE/RAMPUP 期挂起，RUN/SLOW 消费） */
+    const motor_timing_t *tm;/* 运行时可调时序（Init/SetTiming 注入） */
 } motor_logic_t;
 
 /* 初始化：记录绝对计时起点与目标速度（应用层先算好 stop_time） */

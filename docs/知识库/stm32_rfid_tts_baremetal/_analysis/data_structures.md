@@ -1,7 +1,13 @@
 # 核心数据结构
-- `trigger_rule_t`（config.h）: GBK 触发词规则（word/len/count_req/speak_en），表 TRIGGER_RULES，上限 TRIGGER_RULES_MAX=8
-- `rfid_logic_t`（Task/rfid_logic.h）: 触发计数/去重状态（trig_count/trig_last_count_tick/trig_triggered/last_speak）
-- `motor_logic_t`（Task/motor_logic.h）: 电机状态机状态（state/start_tick/state_tick/stop_time/speed/ramp_start/pending_trigger）
+- `params_t`（config/nvs_params.h）: 全量可调参数（late_ms/slow_ms/target_speed/motor_dir/slowwins[8]/rules[8]/count_interval_ms/stop_ramp_ms/wait_ms/led_on_ms/dedup_ms/rfid_poll_ms/autostop_ms），与 ESP32 同构；存于 g_params
+- `param_slowwin_t`{start_ms,dur_ms,pct} / `param_rule_t`{word[16],len,count_req,speak_en}（nvs_params.h）
+- `flash_blob_t`{magic=0xA55A,crc,params_t}（nvs_params.c，Flash 末页布局）
+- `motor_timing_t`（Task/motor_logic.h）: Setter 注入时序（late/slow/stop_ramp/wait + slowwin[8]）
+- `rfid_rule_rt_t`（Task/rfid_logic.h）: 运行时触发词规则副本（word[16]/len/count_req/speak_en）
+- `trigger_rule_t`（config.h）: 编译期默认规则表 TRIGGER_RULES（太阳1次/地球2次）
+- `rfid_logic_t`: 触发计数/去重状态（trig_count/trig_last_count_tick/trig_triggered/last_speak）
+- `motor_logic_t`: 电机状态机（state/start_tick/state_tick/stop_time/speed/ramp_start/pending_trigger/tm）
 - `rfid_control_t`（Task/rfid_process.h）: 读卡状态机（chinese_data/block_num/wait_tick/led_tick/logic）
 - `CMD`（hardware/rfid_card/Card.h）: 读卡帧缓冲（ReceiveBuffer[32]/block_data[16]）
 - `card_res_flag`（CARD_FLAG_*）: 五态读卡标志（NONE/RESDATA/WAIT/EXIST/LEDLIGHT）
+- `param_cli_action_t`（config/param_cli.h）: NONE/ISP/REBOOT 动作枚举（实际经钩子+ShouldEnterIsp）

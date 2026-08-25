@@ -5,6 +5,7 @@
 #include "Card.h"
 #include "led.h"
 #include "Debug.h"
+#include "nvs_params.h"
 #include "stdio.h"
 #include <string.h>
 
@@ -33,7 +34,7 @@ void RFID_Init(void)
     HAL_Delay(80);
     printf("<V>6");      /* 音量 */
     HAL_Delay(80);
-    printf("<I>0");      /* 上电提示 + 断电保存 */
+    printf("<I>7");      /* 上电提示音7号 + 断电保存（与ESP32版选定一致） */
     HAL_Delay(200);
 #endif
 
@@ -126,13 +127,13 @@ void RFID_Process(void)
         if( (HAL_GetTick() - rfid_control.led_tick) >= (uint32_t)RFID_READ_DELAY_MS )
         {
             /* 播报延时结束，开始轮询读卡号维持 LED */
-            if( (HAL_GetTick() - rfid_control.poll_tick) >= RFID_LED_POLL_MS )
+            if( (HAL_GetTick() - rfid_control.poll_tick) >= g_params.rfid_poll_ms )
             {
                 rfid_control.poll_tick = HAL_GetTick();
                 ReadCard();
             }
             /* 卡在场由回调刷新 rfid_last_card_tick；脱离 C 秒后熄灭 */
-            if( (HAL_GetTick() - rfid_last_card_tick) >= (uint32_t)LED_ON_TIME_S*1000UL )
+            if( (HAL_GetTick() - rfid_last_card_tick) >= g_params.led_on_ms )
             {
                 LED_Sta( 0 );
                 card_res_flag = CARD_FLAG_NONE;

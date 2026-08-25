@@ -6,11 +6,99 @@
 #include "card_uart.h"
 #include "card_parse.h"
 #include "pins.h"
+#include "config.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "driver/uart.h"
 #include "esp_timer.h"
 #include "esp_check.h"
+
+#if DEMO_MODE
+#include <stdio.h>
+#include <string.h>
+
+/* ============ 无硬件演示模式：模拟 U13T 模块响应帧 ============
+ * 帧格式与 card_parse 解析一致：0x7F 帧头 + 长度 + 数据（长度字节 <0x7F）。
+ *  - 卡号帧（0x90 响应）：触发 EXIST → 状态机发读块命令
+ *  - 读块帧（0x91 响应）：ReceiveBuffer[9..24] = 16 字节块数据（GBK 触发词）
+ * 每 ~11s 一轮：卡号帧 → 150ms 后块帧；触发词按 太阳→地球→地球 轮换，
+ * 演示 一次性词(太阳) 与 计数型词(地球, 2 次间隔≥10s) 两种触发语义。
+ */
+static uint8_t demo_word_idx = 0;      /* 0=太阳 1=地球 */
+static uint8_t demo_earth_count = 0;   /* 地球已刷卡次数 */
+static uint8_t demo_phase = 0;         /* 0=待发卡号帧 1=待发块帧 */
+static uint32_t demo_next_ms = 0;      /* 下次注入时间(ms) */
+
+/* 模拟卡号帧：0x7F | 0x04 | 04 90 00 00 */
+static const uint8_t demo_cardid_frame[] = {0x7F, 0x04, 0x04, 0x90, 0x00, 0x00};
+
+static void Card_Demo_Feed(void)
+{
+	uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
+	uint8_t frame[32];
+	uint8_t n, i;
+
+	if( now < demo_next_ms ) return;
+
+	if( demo_phase == 0 )
+	{
+		/* 卡号帧 → card_res_flag = EXIST，状态机开始读块 */
+		for( i = 0; i < sizeof(demo_cardid_frame); i++ )
+		{
+			Card_Parse_Feed(demo_cardid_frame[i], now);
+		}
+		demo_phase = 1;
+		demo_next_ms = now + 150;    /* 模拟模块处理延时后应答 */
+		return;
+	}
+
+	/* 读块帧：构造 0x7F | 0x1A | 26 字节数据
+	 * 数据字节定位：frame[k] = D(k-1)，块数据 D10..D25 = frame[11..26] */
+	memset(frame, 0, sizeof(frame));
+	frame[0] = 0x7F;
+	frame[1] = 0x1A;
+	frame[2] = 0x1A;      /* D1 占位 */
+	frame[3] = 0x91;      /* D2 命令=读块响应 */
+	frame[4] = 0x00;      /* D3 状态=成功 */
+	/* D4..D9 占位（frame[5..10]）已由 memset 清零 */
+	/* D10..D25 = 块数据 16 字节：GBK 触发词 + 0 填充 */
+	{
+		static const uint8_t words[2][4] = {
+			{0xCC, 0xAB, 0xD1, 0xF4},   /* 太阳 */
+			{0xB5, 0xD8, 0xC7, 0xF2},   /* 地球 */
+		};
+		const uint8_t *w = words[demo_word_idx];
+		for( n = 0; n < 4; n++ ) frame[11+n] = w[n];
+		/* frame[15..26] 保持 0 */
+	}
+	frame[26] = 0x00;   /* D26 触发判断字节 */
+
+	printf("[DEMO] simulate card: ");
+	for( n = 0; n < 4; n++ ) printf("%02X ", frame[11+n]);
+	printf("\r\n");
+	for( i = 0; i < 27; i++ )
+	{
+		Card_Parse_Feed(frame[i], now);
+	}
+
+	/* 轮换触发词语义：太阳 → 地球(第1次) → 地球(第2次触发) → 太阳… */
+	if( demo_word_idx == 0 )
+	{
+		demo_word_idx = 1;
+	}
+	else
+	{
+		demo_earth_count++;
+		if( demo_earth_count >= 2 )
+		{
+			demo_word_idx = 0;
+			demo_earth_count = 0;
+		}
+	}
+	demo_phase = 0;
+	demo_next_ms = now + 11000;   /* 每 11s 一轮：LED 3s 熄灭 + 间隔 + 地球计数间隔≥10s */
+}
+#endif /* DEMO_MODE */
 
 #define RX_BUF_SIZE  256
 #define TX_FRAME_MAX 24    /* 最大命令帧：帧头1 + 长度1 + 参数≤20 + 0x7F 转义冗余 */
@@ -115,9 +203,13 @@ void Card_Uart_Init(void)
 	ESP_ERROR_CHECK(uart_set_baudrate(RFID_UART, 115200));
 }
 
-/* 非阻塞消费接收缓冲，逐字节喂解析器 */
+/* 非阻塞消费接收缓冲，逐字节喂解析器
+ * DEMO_MODE：绕过真实 UART，由模拟器周期注入模块响应帧 */
 void Card_Uart_Poll(void)
 {
+#if DEMO_MODE
+	Card_Demo_Feed();
+#else
 	uint8_t buf[32];
 	int len = uart_read_bytes(RFID_UART, buf, sizeof(buf), 0);
 	uint32_t now = (uint32_t)(esp_timer_get_time() / 1000);
@@ -126,4 +218,5 @@ void Card_Uart_Poll(void)
 	{
 		Card_Parse_Feed(buf[i], now);
 	}
+#endif
 }

@@ -8,109 +8,127 @@
   },
   {
    "name": "Motor_Control_Task",
-   "line": 39,
+   "line": 31,
    "signature": "void Motor_Control_Task(void const * argument)",
    "file": "Task/motor_control_task.c"
   },
   {
    "name": "Motor_ApplySpeed",
-   "line": 65,
+   "line": 57,
    "signature": "static void Motor_ApplySpeed(uint16_t speed)",
    "file": "Task/motor_control_task.c"
   },
   {
    "name": "Motor_IsInStopSequence",
-   "line": 71,
+   "line": 63,
    "signature": "uint8_t Motor_IsInStopSequence(void)",
    "file": "Task/motor_control_task.c"
   },
   {
+   "name": "ensure_defaults",
+   "line": 14,
+   "signature": "static void ensure_defaults(void)",
+   "file": "Task/rfid_logic.c"
+  },
+  {
+   "name": "RfidLogic_SetConfig",
+   "line": 31,
+   "signature": "void RfidLogic_SetConfig(const rfid_rule_rt_t *rules, uint8_t count,\n                         uint32_t dedup_ms, uint32_t interval_ms)",
+   "file": "Task/rfid_logic.c"
+  },
+  {
    "name": "RfidLogic_RuleCount",
-   "line": 7,
+   "line": 43,
    "signature": "uint8_t RfidLogic_RuleCount(void)",
    "file": "Task/rfid_logic.c"
   },
   {
    "name": "RfidLogic_Init",
-   "line": 12,
+   "line": 49,
    "signature": "void RfidLogic_Init(rfid_logic_t *lx)",
    "file": "Task/rfid_logic.c"
   },
   {
    "name": "RfidLogic_TriggerMatch",
-   "line": 17,
+   "line": 54,
    "signature": "int16_t RfidLogic_TriggerMatch(const uint8_t *data, uint8_t len)",
    "file": "Task/rfid_logic.c"
   },
   {
    "name": "RfidLogic_IsDup",
-   "line": 42,
+   "line": 79,
    "signature": "uint8_t RfidLogic_IsDup(rfid_logic_t *lx, const uint8_t *data, uint32_t now_ms)",
    "file": "Task/rfid_logic.c"
   },
   {
    "name": "RfidLogic_UpdateSpeak",
-   "line": 52,
+   "line": 90,
    "signature": "void RfidLogic_UpdateSpeak(rfid_logic_t *lx, const uint8_t *data, uint32_t now_ms)",
    "file": "Task/rfid_logic.c"
   },
   {
    "name": "RfidLogic_Process",
-   "line": 58,
+   "line": 96,
    "signature": "uint8_t RfidLogic_Process(rfid_logic_t *lx, const uint8_t *data, uint8_t len,\n                          uint8_t in_stop_sequence, uint32_t now_ms)",
    "file": "Task/rfid_logic.c"
   },
   {
    "name": "RFID_Task",
-   "line": 29,
+   "line": 30,
    "signature": "void RFID_Task(void const * argument)",
    "file": "Task/rfid_task.c"
   },
   {
    "name": "RFID_Par_Init",
-   "line": 143,
+   "line": 144,
    "signature": "static void RFID_Par_Init(void)",
    "file": "Task/rfid_task.c"
   },
   {
    "name": "RFID_HandleCardData",
-   "line": 161,
+   "line": 162,
    "signature": "static void RFID_HandleCardData(void)",
    "file": "Task/rfid_task.c"
   },
   {
    "name": "RFID_Speak",
-   "line": 188,
+   "line": 189,
    "signature": "static void RFID_Speak(const uint8_t *data)",
    "file": "Task/rfid_task.c"
   },
   {
    "name": "BufClear",
-   "line": 195,
+   "line": 196,
    "signature": "static void BufClear(uint8_t* buf)",
    "file": "Task/rfid_task.c"
   },
   {
+   "name": "MotorLogic_SetTiming",
+   "line": 15,
+   "signature": "void MotorLogic_SetTiming(const motor_timing_t *tm)",
+   "file": "Task/motor_logic.c"
+  },
+  {
    "name": "MotorLogic_Init",
-   "line": 10,
+   "line": 20,
    "signature": "void MotorLogic_Init(motor_logic_t *lx, uint32_t now_ms, uint16_t target_speed, uint32_t stop_time)",
    "file": "Task/motor_logic.c"
   },
   {
    "name": "MotorLogic_Step",
-   "line": 23,
+   "line": 34,
    "signature": "uint16_t MotorLogic_Step(motor_logic_t *lx, uint8_t trigger, uint32_t now_ms)",
    "file": "Task/motor_logic.c"
   },
   {
    "name": "MotorLogic_IsInStopSequence",
-   "line": 117,
+   "line": 137,
    "signature": "uint8_t MotorLogic_IsInStopSequence(const motor_logic_t *lx)",
    "file": "Task/motor_logic.c"
   },
   {
    "name": "MotorLogic_CalcStopTime",
-   "line": 123,
+   "line": 143,
    "signature": "uint32_t MotorLogic_CalcStopTime(uint32_t adc_avg)",
    "file": "Task/motor_logic.c"
   },
@@ -200,19 +218,19 @@
   },
   {
    "name": "vApplicationGetIdleTaskMemory",
-   "line": 71,
+   "line": 73,
    "signature": "void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize)",
    "file": "Core/Src/freertos.c"
   },
   {
    "name": "MX_FREERTOS_Init",
-   "line": 85,
+   "line": 87,
    "signature": "void MX_FREERTOS_Init(void)",
    "file": "Core/Src/freertos.c"
   },
   {
    "name": "StartDefaultTask",
-   "line": 130,
+   "line": 134,
    "signature": "void StartDefaultTask(void const * argument)",
    "file": "Core/Src/freertos.c"
   },
@@ -295,6 +313,96 @@
    "file": "Core/Src/stm32f1xx_it.c"
   },
   {
+   "name": "ParamCli_ShouldEnterIsp",
+   "line": 20,
+   "signature": "uint8_t ParamCli_ShouldEnterIsp(void)",
+   "file": "config/param_cli.c"
+  },
+  {
+   "name": "ParamCli_Init",
+   "line": 22,
+   "signature": "void ParamCli_Init(void)",
+   "file": "config/param_cli.c"
+  },
+  {
+   "name": "set_scalar",
+   "line": 29,
+   "signature": "static uint8_t set_scalar(const char *key, double v)",
+   "file": "config/param_cli.c"
+  },
+  {
+   "name": "respond",
+   "line": 46,
+   "signature": "static void respond(const char *s)",
+   "file": "config/param_cli.c"
+  },
+  {
+   "name": "hex_to_bytes",
+   "line": 51,
+   "signature": "static void hex_to_bytes(const char *hex, uint8_t *out, uint8_t max)",
+   "file": "config/param_cli.c"
+  },
+  {
+   "name": "param_cli_execute",
+   "line": 64,
+   "signature": "void param_cli_execute(char *line)",
+   "file": "config/param_cli.c"
+  },
+  {
+   "name": "ParamCli_Poll",
+   "line": 211,
+   "signature": "void ParamCli_Poll(void)",
+   "file": "config/param_cli.c"
+  },
+  {
+   "name": "params_apply",
+   "line": 35,
+   "signature": "void params_apply(void)",
+   "file": "config/nvs_params.c"
+  },
+  {
+   "name": "params_sanitize",
+   "line": 69,
+   "signature": "int params_sanitize(params_t *p)",
+   "file": "config/nvs_params.c"
+  },
+  {
+   "name": "crc16",
+   "line": 132,
+   "signature": "static uint16_t crc16(const uint8_t *d, size_t n)",
+   "file": "config/nvs_params.c"
+  },
+  {
+   "name": "params_init",
+   "line": 150,
+   "signature": "void params_init(void)",
+   "file": "config/nvs_params.c"
+  },
+  {
+   "name": "params_save",
+   "line": 166,
+   "signature": "int params_save(void)",
+   "file": "config/nvs_params.c"
+  },
+  {
+   "name": "param_cli_do_isp",
+   "line": 5,
+   "signature": "void param_cli_do_isp(void)",
+   "file": "config/isp_jump.c"
+  },
+  {
+   "name": "param_cli_do_reboot",
+   "line": 6,
+   "signature": "void param_cli_do_reboot(void)",
+   "file": "config/isp_jump.c"
+  },
+  {
+   "name": "ISP_Enter",
+   "line": 11,
+   "signature": "void ISP_Enter(void)",
+   "file": "config/isp_jump.c"
+  },
+  {
    "name": "Get_ADC_Value",
    "line": 6,
    "signature": "uint32_t Get_ADC_Value(void)",
@@ -319,20 +427,26 @@
    "file": "hardware/LED/led.c"
   },
   {
+   "name": "Motor_SetDirection",
+   "line": 7,
+   "signature": "void Motor_SetDirection(uint8_t dir)",
+   "file": "hardware/pwm/PWM.c"
+  },
+  {
    "name": "PWM_Init",
-   "line": 6,
+   "line": 13,
    "signature": "void PWM_Init(void)",
    "file": "hardware/pwm/PWM.c"
   },
   {
    "name": "PWM_DutySet",
-   "line": 13,
+   "line": 20,
    "signature": "void PWM_DutySet(TIM_TypeDef* timx, uint8_t channel, uint16_t duty)",
    "file": "hardware/pwm/PWM.c"
   },
   {
    "name": "Motor_Control",
-   "line": 31,
+   "line": 38,
    "signature": "void Motor_Control(uint16_t speed)",
    "file": "hardware/pwm/PWM.c"
   },

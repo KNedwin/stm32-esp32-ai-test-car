@@ -5,7 +5,7 @@
 """
 import json, os
 
-KB = "<HOME>/新能源小车/docs/知识库"
+KB = "<HOME>/项目/新能源小车语音播报/docs/知识库"
 
 STM32_COMMON = {
     "device": "STM32F103C8T6",

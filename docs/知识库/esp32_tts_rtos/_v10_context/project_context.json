@@ -1,6 +1,6 @@
 {
   "project_name": "esp32_tts_rtos",
-  "project_root": "<HOME>/新能源小车/esp32/esp32_tts_rtos",
+  "project_root": "<HOME>/项目/新能源小车语音播报/esp32/esp32_tts_rtos",
   "build_system": "esp_idf",
   "target_device": "ESP32-S3",
   "flash": {
@@ -16,7 +16,7 @@
     "IDF_VER=\"v6.0.2\""
   ],
   "include_paths": [
-    "<HOME>/新能源小车/esp32/esp32_tts_rtos/main"
+    "<HOME>/项目/新能源小车语音播报/esp32/esp32_tts_rtos/main"
   ],
   "business_sources": [
     {
@@ -24,7 +24,27 @@
       "classification": "business"
     },
     {
+      "relative_path": "<extra>/web_server.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/ws2812.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/gbk_utf8.c",
+      "classification": "business"
+    },
+    {
       "relative_path": "<extra>/adc.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/nvs_params.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/wifi_ap.c",
       "classification": "business"
     },
     {
@@ -37,6 +57,10 @@
     },
     {
       "relative_path": "<extra>/motor_drv.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/config_mode.c",
       "classification": "business"
     },
     {
@@ -76,7 +100,27 @@
       "classification": "business"
     },
     {
+      "relative_path": "<extra>/web_server.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/ws2812.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/gbk_utf8.c",
+      "classification": "business"
+    },
+    {
       "relative_path": "<extra>/adc.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/nvs_params.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/wifi_ap.c",
       "classification": "business"
     },
     {
@@ -89,6 +133,10 @@
     },
     {
       "relative_path": "<extra>/motor_drv.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "<extra>/config_mode.c",
       "classification": "business"
     },
     {
@@ -125,15 +173,22 @@
     "main/motor_task.h",
     "../components/common/card_parse.h",
     "../components/common/led.h",
+    "../components/common/ws2812.h",
+    "../components/common/config_mode.h",
+    "../components/common/gbk_utf8.h",
     "../components/common/pins.h",
+    "../components/common/nvs_params.h",
     "../components/common/motor_logic.h",
     "../components/common/adc.h",
     "../components/common/rfid_logic.h",
     "../components/common/config.h",
+    "../components/common/gbk_utf8_table.h",
     "../components/common/tts.h",
+    "../components/common/web_server.h",
     "../components/common/motor_drv.h",
     "../components/common/card_uart.h",
-    "../components/common/debug.h"
+    "../components/common/debug.h",
+    "../components/common/wifi_ap.h"
   ],
-  "extracted_at": "2026-08-04 14:06:00"
+  "extracted_at": "2026-08-25 20:41:33"
 }

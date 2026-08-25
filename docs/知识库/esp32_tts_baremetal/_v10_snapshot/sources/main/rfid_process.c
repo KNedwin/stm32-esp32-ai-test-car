@@ -3,6 +3,8 @@
 #include "config.h"
 #include "card_uart.h"
 #include "card_parse.h"
+#include "gbk_utf8.h"
+#include "nvs_params.h"
 #include "tts.h"
 #include "led.h"
 #include "debug.h"
@@ -12,6 +14,10 @@
 #include <string.h>
 
 rfid_control_t rfid_control;
+
+/* 绿色确认窗：触发后先亮绿 TRIGGER_ACK_GREEN_MS 再启动停车序列 */
+static uint8_t  s_trig_pending = 0;
+static uint32_t s_trig_pending_tick = 0;
 
 /* 时间基准：esp_timer（微秒）→ 毫秒（截断为 32 位，差值比较在回绕下仍正确） */
 static inline uint32_t now_ms(void)
@@ -43,6 +49,13 @@ void RFID_Init(void)
  */
 void RFID_Process(void)
 {
+	/* 绿色确认窗到期 → 正式触发停车序列 */
+	if( s_trig_pending && (now_ms() - s_trig_pending_tick) >= (uint32_t)TRIGGER_ACK_GREEN_MS )
+	{
+		motor_trigger_flag = 1;
+		s_trig_pending = 0;
+	}
+
 	Card_Uart_Poll();    /* 消费读卡串口接收（非阻塞） */
 
 	if( card_res_flag == CARD_FLAG_EXIST )               /* 检测到卡，读块 */
@@ -104,7 +117,7 @@ void RFID_Process(void)
 	{
 		BufClear( rfid_control.chinese_data );
 		rfid_control.chinese_block_num = 0;
-		LED_Sta( 0 );
+		if( !Motor_IsBusyForLed() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
 		rfid_control.wait_resend_times = 0;
 		if( (now_ms() - rfid_control.poll_tick) >= 200UL )  /* 每 200ms 探测一次，不依赖模块自动上报 */
 		{
@@ -116,8 +129,8 @@ void RFID_Process(void)
 
 	if( card_res_flag == CARD_FLAG_LEDLIGHT )            /* LED 保持：轮询读卡号 */
 	{
-		LED_Sta( 1 );
-		if( (now_ms() - rfid_control.led_tick) >= (uint32_t)RFID_READ_DELAY_MS )
+		if( !Motor_IsBusyForLed() ) LED_Sta( 1 );  /* 电机停车期间不碰 LED */
+		if( (now_ms() - rfid_control.led_tick) >= g_params.rfid_poll_ms )
 		{
 			/* 播报延时结束，开始轮询读卡号维持 LED */
 			if( (now_ms() - rfid_control.poll_tick) >= RFID_LED_POLL_MS )
@@ -126,9 +139,9 @@ void RFID_Process(void)
 				Card_ReadCard();
 			}
 			/* 卡在场由 Card_Uart_Poll 刷新 rfid_last_card_tick；脱离 C 秒后熄灭 */
-			if( (now_ms() - rfid_last_card_tick) >= (uint32_t)LED_ON_TIME_S*1000UL )
+			if( (now_ms() - rfid_last_card_tick) >= g_params.led_on_ms )
 			{
-				LED_Sta( 0 );
+				if( !Motor_IsBusyForLed() ) LED_Sta( 0 );  /* 电机停车期间不碰 LED */
 				card_res_flag = CARD_FLAG_NONE;
 			}
 		}
@@ -167,12 +180,20 @@ static void RFID_HandleCardData(void)
 	{
 		Dbg_Printf("%02X ", rfid_control.chinese_data[i]);
 	}
+	/* GBK→UTF-8 转换显示（任意卡内容，查表覆盖 GB2312 全区） */
+	{
+		char    ubuf[48];
+		uint8_t dlen = (uint8_t)strnlen((const char *)rfid_control.chinese_data, RFID_BLOCK_SIZE);
+		if( gbk_to_utf8(rfid_control.chinese_data, dlen, ubuf, sizeof(ubuf)) > 0 )
+			Dbg_Printf(" = %s", ubuf);
+	}
 	Dbg_Printf("\r\n");
 #endif
 
 	if( ev & RFID_EV_TRIGGER_STOP )
 	{
-		motor_trigger_flag = 1;
+		s_trig_pending = 1;                 /* 先亮绿确认，延时后再停车 */
+		s_trig_pending_tick = now_ms();
 	}
 	if( ev & (RFID_EV_SPEAK | RFID_EV_SPEAK_FORCED) )
 	{

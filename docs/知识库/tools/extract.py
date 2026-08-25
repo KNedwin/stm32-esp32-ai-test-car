@@ -6,7 +6,7 @@
 """
 import json, os, re, shutil, sys, datetime
 
-ROOT = "<HOME>/新能源小车"
+ROOT = "<HOME>/项目/新能源小车语音播报"
 KB = f"{ROOT}/docs/知识库"
 
 PROJECTS = [
@@ -22,6 +22,7 @@ PROJECTS = [
             "Core/Src/*.c",
             "hardware/**/*.c",
             "Task/*.c",
+            "config/*.c",
         ],
         "inc_dirs": [
             "Core/Inc",
@@ -49,6 +50,7 @@ PROJECTS = [
             "Core/Src/*.c",
             "hardware/**/*.c",
             "Task/*.c",
+            "config/*.c",
         ],
         "inc_dirs": [
             "Core/Inc",

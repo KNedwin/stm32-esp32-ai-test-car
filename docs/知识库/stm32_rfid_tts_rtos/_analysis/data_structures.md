@@ -1,7 +1,13 @@
 # 核心数据结构
-- `trigger_rule_t`（config.h）: GBK 触发词规则（word/len/count_req/speak_en），表 TRIGGER_RULES，上限 TRIGGER_RULES_MAX=8
-- `rfid_logic_t`（Task/rfid_logic.h）: 触发计数/去重状态（trig_count/trig_last_count_tick/trig_triggered/last_speak）
-- `motor_logic_t`（Task/motor_logic.h）: 电机状态机状态（state/start_tick/state_tick/stop_time/speed/ramp_start/pending_trigger）
-- `rfid_control_t`（Task/rfid_task.h）: 读卡状态机（chinese_data/block_num/wait_tick/led_tick/logic）
-- `CMD`（hardware/rfid_card/Card.h）: 读卡帧缓冲（ReceiveBuffer[32]/block_data[16]）
-- `card_res_flag`（CARD_FLAG_*）: 五态读卡标志（NONE/RESDATA/WAIT/EXIST/LEDLIGHT）
+- `params_t`（config/nvs_params.h:23-39）: 运行时参数总表 late_ms/slow_ms/target_speed/motor_dir/slowwins[8]/slowwin_count/rules[8]/rule_count/count_interval_ms/stop_ramp_ms/wait_ms/led_on_ms/dedup_ms/rfid_poll_ms/autostop_ms；全局实例 g_params
+- `param_slowwin_t`: start_ms/dur_ms/pct（降速窗口）
+- `param_rule_t`: word[16]/len/count_req/speak_en（触发词规则运行时可变副本）
+- `flash_blob_t`（nvs_params.c:144-148）: magic u16 + crc u16(CRC16MODBUS 对 p) + params_t，存 0x0800FC00
+- `motor_timing_t`（Task/motor_logic.h:21-29）: Setter 注入的电机时序（late_ms/slow_ms/stop_ramp_ms/wait_ms/slowwin[8]/slowwin_count）
+- `rfid_rule_rt_t`（Task/rfid_logic.h:24-29）: 运行时触发词规则（word[RFID_BLOCK_SIZE]/len/count_req/speak_en）
+- `trigger_rule_t`（config.h:31-36）: 编译期默认触发词规则，表 TRIGGER_RULES，上限 TRIGGER_RULES_MAX=8
+- `rfid_logic_t`（Task/rfid_logic.h）: trig_count/trig_last_count_tick/trig_triggered/last_speak/last_speak_tick
+- `motor_logic_t`（Task/motor_logic.h）: state/start_tick/state_tick/stop_time/target_speed/speed/ramp_start/pending_trigger/tm
+- `rfid_control_t`（Task/rfid_task.h）: chinese_data/block_num/wait_time/wait_resend_times/led_tick/logic
+- `CMD`（hardware/rfid_card/Card.h）: ReceiveBuffer[32]/block_data[16]
+- `card_res_flag`: CARD_FLAG_NONE/WAIT/EXIST/RESDATA/LEDLIGHT 五态

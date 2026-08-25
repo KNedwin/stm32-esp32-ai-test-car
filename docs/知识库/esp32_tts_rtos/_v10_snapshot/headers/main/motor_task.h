@@ -16,4 +16,7 @@ void Motor_Task(void *arg);
 /* 查询是否处于停车序列（STOPPING/WAIT），供 rfid 判断是否计数 */
 uint8_t Motor_IsInStopSequence(void);
 
+/* LED 占用查询：停车序列 + RAMPUP 缓启动期间，rfid 不覆盖 RGB 颜色 */
+uint8_t Motor_IsBusyForLed(void);
+
 #endif

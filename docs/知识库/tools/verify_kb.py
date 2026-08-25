@@ -5,7 +5,7 @@
 """
 import os, sys, re
 
-KB = "<HOME>/新能源小车/docs/知识库"
+KB = "<HOME>/项目/新能源小车语音播报/docs/知识库"
 PROJECTS = ["stm32_rfid_tts_rtos", "stm32_rfid_tts_baremetal",
             "esp32_tts_rtos", "esp32_tts_baremetal"]
 

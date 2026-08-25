@@ -1,6 +1,6 @@
 {
   "project_name": "stm32_rfid_tts_rtos",
-  "project_root": "<HOME>/新能源小车/stm32/rfid_tts_rtos",
+  "project_root": "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos",
   "build_system": "cmake_cubemx",
   "target_device": "STM32F103C8T6",
   "flash": {
@@ -17,22 +17,22 @@
     "DEBUG"
   ],
   "include_paths": [
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Core/Inc",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Drivers/CMSIS/Include",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/include",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/.",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/USART",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/rfid_card",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/pwm",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/LED",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/ADC",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/hardware/DEBUG",
-    "<HOME>/新能源小车/stm32/rfid_tts_rtos/Task"
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Core/Inc",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Drivers/CMSIS/Include",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/include",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/.",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/USART",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/rfid_card",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/pwm",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/LED",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/ADC",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/DEBUG",
+    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Task"
   ],
   "business_sources": [
     {
@@ -77,6 +77,18 @@
     },
     {
       "relative_path": "Core/Src/stm32f1xx_it.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "config/param_cli.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "config/nvs_params.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "config/isp_jump.c",
       "classification": "business"
     },
     {
@@ -175,6 +187,18 @@
     },
     {
       "relative_path": "Core/Src/stm32f1xx_it.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "config/param_cli.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "config/nvs_params.c",
+      "classification": "business"
+    },
+    {
+      "relative_path": "config/isp_jump.c",
       "classification": "business"
     },
     {
@@ -373,6 +397,9 @@
     "Core/Inc/gpio.h",
     "Core/Inc/tim.h",
     "Core/Inc/FreeRTOSConfig.h",
+    "config/isp_jump.h",
+    "config/nvs_params.h",
+    "config/param_cli.h",
     "hardware/ADC/BSP_ADC.h",
     "hardware/DEBUG/Debug.h",
     "hardware/LED/led.h",
@@ -390,5 +417,5 @@
     "Task/rfid_logic.h",
     "Task/motor_control_task.h"
   ],
-  "extracted_at": "2026-08-04 14:06:00"
+  "extracted_at": "2026-08-25 20:41:33"
 }

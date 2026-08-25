@@ -2,80 +2,86 @@
  "functions": [
   {
    "name": "now_ms",
-   "line": 17,
+   "line": 23,
    "signature": "static inline uint32_t now_ms(void)",
    "file": "main/rfid_process.c"
   },
   {
    "name": "RFID_Init",
-   "line": 30,
+   "line": 36,
    "signature": "void RFID_Init(void)",
    "file": "main/rfid_process.c"
   },
   {
    "name": "RFID_Process",
-   "line": 44,
+   "line": 50,
    "signature": "void RFID_Process(void)",
    "file": "main/rfid_process.c"
   },
   {
    "name": "RFID_Par_Init",
-   "line": 139,
+   "line": 152,
    "signature": "static void RFID_Par_Init(void)",
    "file": "main/rfid_process.c"
   },
   {
    "name": "RFID_HandleCardData",
-   "line": 158,
+   "line": 171,
    "signature": "static void RFID_HandleCardData(void)",
    "file": "main/rfid_process.c"
   },
   {
    "name": "RFID_Speak",
-   "line": 185,
+   "line": 206,
    "signature": "static void RFID_Speak(const uint8_t *data)",
    "file": "main/rfid_process.c"
   },
   {
    "name": "BufClear",
-   "line": 192,
+   "line": 213,
    "signature": "static void BufClear(uint8_t *buf)",
    "file": "main/rfid_process.c"
   },
   {
    "name": "app_main",
-   "line": 17,
+   "line": 19,
    "signature": "void app_main(void)",
    "file": "main/app_main.c"
   },
   {
    "name": "now_ms",
-   "line": 14,
+   "line": 16,
    "signature": "static inline uint32_t now_ms(void)",
    "file": "main/motor_process.c"
   },
   {
    "name": "Motor_Init",
-   "line": 24,
+   "line": 26,
    "signature": "void Motor_Init(void)",
    "file": "main/motor_process.c"
   },
   {
    "name": "Motor_Process",
-   "line": 49,
+   "line": 41,
    "signature": "void Motor_Process(void)",
    "file": "main/motor_process.c"
   },
   {
    "name": "Motor_ApplySpeed",
-   "line": 68,
+   "line": 72,
    "signature": "static void Motor_ApplySpeed(uint16_t speed)",
    "file": "main/motor_process.c"
   },
   {
    "name": "Motor_IsInStopSequence",
-   "line": 74,
+   "line": 78,
    "signature": "uint8_t Motor_IsInStopSequence(void)",
+   "file": "main/motor_process.c"
+  },
+  {
+   "name": "Motor_IsBusyForLed",
+   "line": 84,
+   "signature": "uint8_t Motor_IsBusyForLed(void)",
    "file": "main/motor_process.c"
   }
  ]

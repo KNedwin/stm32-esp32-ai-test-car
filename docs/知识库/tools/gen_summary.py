@@ -5,7 +5,7 @@ SUMMARY 按 13_doc_summary 格式；验收包按 15_verification_package（Part1
 """
 import os, json
 
-KB = "<HOME>/新能源小车/docs/知识库"
+KB = "<HOME>/项目/新能源小车语音播报/docs/知识库"
 
 def ctx(name):
     with open(f"{KB}/{name}/_v10_context/project_context.json", encoding="utf-8") as f:
