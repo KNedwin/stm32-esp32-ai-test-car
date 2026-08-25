@@ -6,6 +6,7 @@
 #include "tts.h"
 #include "card_uart.h"
 #include "adc.h"
+#include "config_mode.h"
 #include "nvs_params.h"
 #include "rfid_task.h"
 #include "motor_task.h"
@@ -28,8 +29,17 @@ void app_main(void)
 	TTS_Init();                 /* 语音 UART2 */
 	ADC_Init();                 /* 电位器 ADC */
 
-	/* 运行时参数加载（NVS）+ 逻辑层时序/规则注入 */
+	/* 运行时参数加载（NVS 初始化 + 读参数）：必须先于 config_mode 检测 */
 	params_init();
+
+	/* 配置模式检测：连按3次RST（快速通断电）触发 */
+	config_mode_boot_check();
+	if( config_mode_should_enter() )
+	{
+		config_mode_run();      /* 阶段四替换为 WiFi+网页，当前蓝闪占位 */
+	}
+
+	/* 逻辑层时序/规则注入 */
 	{
 		static motor_timing_t tm;   /* static：SetTiming 保存指针，须持久 */
 		uint8_t i;
