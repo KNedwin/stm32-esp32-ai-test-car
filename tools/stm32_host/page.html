@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>新能源小车 STM32 参数配置（上位机）</title>
+<style>
+body{font-family:sans-serif;margin:14px;background:#f4f6f8;color:#222;font-size:15px}
+h2{margin:6px 0 12px}
+fieldset{border:1px solid #bbb;border-radius:8px;margin-bottom:12px;background:#fff}
+legend{font-weight:bold;padding:0 8px}
+.row{display:flex;gap:8px;align-items:center;margin:7px 0}
+.row label{flex:0 0 170px}
+input,select{padding:5px 6px;border:1px solid #ccc;border-radius:4px;width:130px;background:#fff}
+button{padding:9px 18px;border:none;border-radius:6px;background:#2b7de9;color:#fff;font-size:15px;margin-right:8px;cursor:pointer}
+button.del{background:#e05555;padding:4px 10px;font-size:13px}
+button.add{background:#3aa657;padding:6px 12px;font-size:14px}
+button.gray{background:#666}
+button.warn{background:#d98a1f}
+#status{margin:10px 0;color:#0a7d20;font-weight:bold;min-height:22px}
+#hint{color:#888;font-size:13px}
+#joblog{width:96%;height:220px;overflow:auto;background:#111;color:#9f9;font-family:monospace;font-size:12px;padding:8px;border-radius:6px;white-space:pre-wrap}
+</style>
+</head>
+<body>
+<h2>🔧 新能源小车 STM32 参数配置</h2>
+<div id="status">未连接串口</div>
+
+<fieldset><legend>① 串口连接（板子 USART3 调试口，115200）</legend>
+<div class="row">
+  <label>COM 口 / 设备</label>
+  <select id="com" style="width:auto;min-width:200px"></select>
+  <button class="gray" onclick="refreshPorts()">刷新</button>
+  <button id="connbtn" onclick="toggleConn()">连接</button>
+</div>
+</fieldset>
+
+<fieldset><legend>电机</legend>
+<div class="row"><label>晚启动延时(秒)</label><input id="late" type="number" step="0.1"></div>
+<div class="row"><label>缓启动时长(秒)</label><input id="slow" type="number" step="0.1"></div>
+<div class="row"><label>目标速度(100~999)</label><input id="spd" type="number"></div>
+<div class="row"><label>电机转向</label><select id="dir"><option value="0">正转</option><option value="1">反转</option></select></div>
+<div class="row"><label>停车减速时间(秒)</label><input id="sr" type="number" step="0.1"></div>
+<div class="row"><label>静止等待时间(秒)</label><input id="ws" type="number" step="0.1"></div>
+<div class="row"><label>自动停车总时长(秒)</label><input id="as" type="number" min="10" max="1000"> <span style="color:#888;font-size:12px">运行到此时间自动永久停止(10~1000)，断电重启恢复</span></div>
+</fieldset>
+
+<fieldset><legend>减速窗口列表（多段降速）</legend>
+<div id="winlist"></div>
+<button class="add" onclick="addWin()">＋ 添加窗口</button>
+</fieldset>
+
+<fieldset><legend>触发词（输入中文自动转GBK）</legend>
+<div id="rulelist"></div>
+<button class="add" onclick="addRule()">＋ 添加触发词</button>
+<div class="row"><label>计数间隔(秒)</label><input id="ci" type="number" step="0.1"></div>
+<p style="color:#777;margin:6px 0 0">
+次数=1：刷到该卡立即播报并触发停车（整个上电周期仅触发一次）。<br>
+次数=N(≥2)：需 N 次有效刷卡，相邻两次有效刷卡间隔必须 ≥ 上方计数间隔，间隔不足不累计。<br>
+已触发的词之后只播报不再停车。示例：地球设2次/间隔10秒 → 刷一次，隔10秒以上再刷一次即停车。
+</p>
+</fieldset>
+
+<fieldset><legend>读卡与播报</legend>
+<div class="row"><label>卡离场LED延时(秒)</label><input id="led" type="number" step="0.1"></div>
+<div class="row"><label>播报去重窗口(秒)</label><input id="dedup" type="number" step="0.1"></div>
+<div class="row"><label>读卡轮询间隔(秒)</label><input id="poll" type="number" step="0.1"></div>
+</fieldset>
+
+<button onclick="save()">💾 保存并即时生效</button>
+<button class="gray" onclick="reboot()">🔄 重启板子</button>
+<span id="hint">保存经 CLI 写入板内 Flash 并即时注入生效，无需重启；重启用于模拟断电验证参数保持</span>
+
+<fieldset><legend>② 工具：编译与烧录</legend>
+<div class="row">
+  <label>目标工程</label>
+  <select id="target">
+    <option value="rtos">RTOS 版</option>
+    <option value="baremetal">裸机版</option>
+  </select>
+  <button onclick="job('build')">🔨 编译</button>
+  <button onclick="job('flash_stlink')">⚡ 烧录(ST-Link)</button>
+  <button class="warn" onclick="ispFlash()">⚡ 烧录(ISP串口)</button>
+</div>
+<p style="color:#888;font-size:12px;margin:4px 0">
+ISP 流程：先在上方连接串口 → 点本按钮（自动发 ISP 命令软跳 Bootloader 再调 stm32flash）。<b>跳转前拔掉 U13T 读卡模块</b>（其 RX 占用 USART1 干扰 ISP 应答），烧完插回。
+</p>
+<pre id="joblog">$ 输出日志…</pre>
+</fieldset>
+
+<script>
+var wins=[], rules=[], connected=false;
+
+function $(id){return document.getElementById(id);}
+function num(id){var v=parseFloat($(id).value);return isNaN(v)?0:v;}
+function ms2s(m){return Math.round(m/100)/10;}
+
+function setStatus(s,ok){$("status").textContent=s;$("status").style.color=ok?"#0a7d20":"#c33";}
+
+/* ---------- 串口 ---------- */
+function refreshPorts(){
+  fetch("/api/ports").then(r=>r.json()).then(function(j){
+    var sel=$("com"); sel.innerHTML="";
+    (j.ports||[]).forEach(function(p){
+      var o=document.createElement("option");
+      o.value=p.name; o.textContent=p.name+(p.desc?"  ("+p.desc+")":"");
+      sel.appendChild(o);
+    });
+    if(!(j.ports||[]).length) sel.innerHTML='<option value="">未发现串口设备</option>';
+  });
+}
+function toggleConn(){
+  if(connected){
+    fetch("/api/disconnect",{method:"POST"}).then(function(){connected=false;
+      $("connbtn").textContent="连接"; setStatus("已断开",false);});
+    return;
+  }
+  var port=$("com").value;
+  if(!port){setStatus("请先选择串口",false);return;}
+  fetch("/api/connect",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({port:port})}).then(r=>r.json()).then(function(j){
+      if(j.ok){connected=true;$("connbtn").textContent="断开";
+        setStatus("✅ 已连接 "+port,true);load();}
+      else setStatus("连接失败:"+j.error,false);
+    });
+}
+
+/* ---------- 参数 ---------- */
+function load(){
+  if(!connected)return;
+  setStatus("加载参数...");
+  fetch("/api/params").then(r=>r.json()).then(function(p){
+    if(p.error){setStatus("读取失败:"+p.error,false);return;}
+    $("late").value=ms2s(p.late_ms); $("slow").value=ms2s(p.slow_ms);
+    $("spd").value=p.target_speed; $("dir").value=p.motor_dir;
+    $("sr").value=ms2s(p.stop_ramp_ms); $("ws").value=ms2s(p.wait_ms);
+    $("led").value=ms2s(p.led_on_ms); $("dedup").value=ms2s(p.dedup_ms);
+    $("poll").value=ms2s(p.rfid_poll_ms); $("ci").value=ms2s(p.count_interval_ms);
+    $("as").value=ms2s(p.autostop_ms||300000);
+    wins=(p.slowwins||[]).map(function(w){return{start_s:w.start_ms/1000,dur_s:w.dur_ms/1000,pct:w.pct};});
+    rules=(p.rules||[]).map(function(r){return{text:r.text,count:r.count,speak:r.speak};});
+    renderWins(); renderRules();
+    setStatus("✅ 参数已从板内读取",true);
+  }).catch(function(e){setStatus("读取异常:"+e,false);});
+}
+function renderWins(){
+  var c=$("winlist"); c.innerHTML="";
+  wins.forEach(function(w,i){
+    var d=document.createElement("div"); d.className="row";
+    d.innerHTML='<label>窗口'+(i+1)+'</label>'
+      +'开始 <input type="number" step="0.1" value="'+w.start_s+'" data-t="ws" data-i="'+i+'"> 秒 '
+      +'持续 <input type="number" step="0.1" value="'+w.dur_s+'" data-t="wd" data-i="'+i+'"> 秒 '
+      +'速度 <input type="number" value="'+w.pct+'" data-t="wp" data-i="'+i+'"> % '
+      +'<button class="del" onclick="delWin('+i+')">删</button>';
+    c.appendChild(d);
+  });
+}
+function addWin(){wins.push({start_s:60,dur_s:5,pct:50});renderWins();}
+function delWin(i){wins.splice(i,1);renderWins();}
+function renderRules(){
+  var c=$("rulelist"); c.innerHTML="";
+  rules.forEach(function(r,i){
+    var d=document.createElement("div"); d.className="row";
+    d.innerHTML='<label>触发词'+(i+1)+'</label>'
+      +'文本 <input type="text" value="'+r.text+'" data-t="rt" data-i="'+i+'"> '
+      +'次数 <input type="number" style="width:60px" value="'+r.count+'" data-t="rc" data-i="'+i+'"> '
+      +'播报 <select data-t="rs" data-i="'+i+'"><option value="1"'+(r.speak?' selected':'')+'>是</option><option value="0"'+(r.speak?'':' selected')+'>否</option></select> '
+      +'<button class="del" onclick="delRule('+i+')">删</button>';
+    c.appendChild(d);
+  });
+}
+function addRule(){rules.push({text:"",count:1,speak:1});renderRules();}
+function delRule(i){rules.splice(i,1);renderRules();}
+
+document.addEventListener("change",function(ev){
+  var t=ev.target.dataset;
+  if(!t.t)return;
+  var i=parseInt(t.i);
+  if(t.t==="ws")wins[i].start_s=parseFloat(ev.target.value)||0;
+  else if(t.t==="wd")wins[i].dur_s=parseFloat(ev.target.value)||0;
+  else if(t.t==="wp")wins[i].pct=parseInt(ev.target.value)||0;
+  else if(t.t==="rt")rules[i].text=ev.target.value;
+  else if(t.t==="rc")rules[i].count=parseInt(ev.target.value)||1;
+  else if(t.t==="rs")rules[i].speak=parseInt(ev.target.value);
+});
+
+function collect(){
+  return {
+    late_s:num("late"), slow_s:num("slow"), target_speed:parseInt($("spd").value)||999,
+    motor_dir:parseInt($("dir").value),
+    stop_ramp_s:num("sr"), wait_s:num("ws"),
+    led_on_s:num("led"), dedup_s:num("dedup"), poll_s:num("poll"),
+    count_interval_s:num("ci"),
+    autostop_s:(function(){var v=parseInt($("as").value);return isNaN(v)?300:v;})(),
+    slowwins:wins.map(function(w){return{start_s:w.start_s,dur_s:w.dur_s,pct:w.pct};}),
+    rules:rules.map(function(r){return{text:r.text,count:r.count,speak:r.speak};})
+  };
+}
+function save(){
+  if(!connected){setStatus("未连接串口",false);return;}
+  var p=collect();
+  if(rules.some(function(r){return !r.text;})){setStatus("有触发词为空！",false);return;}
+  setStatus("下发命令中...");
+  fetch("/api/params",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify(p)}).then(r=>r.json()).then(function(j){
+      if(j.ok)setStatus("✅ 已保存并即时生效（"+j.msg+"）",true);
+      else setStatus("保存失败:"+j.error,false);
+    }).catch(function(e){setStatus("保存异常:"+e,false);});
+}
+function reboot(){
+  if(!connected){setStatus("未连接串口",false);return;}
+  fetch("/api/reboot",{method:"POST"}).then(function(){
+    setStatus("板子重启中，约5秒后可重新连接读取参数",true);
+    connected=false;$("connbtn").textContent="连接";
+  });
+}
+
+/* ---------- 工具 ---------- */
+function job(kind){
+  fetch("/api/job",{method:"POST",headers:{"Content-Type":"application/json"},
+    body:JSON.stringify({kind:kind,target:$("target").value})}).then(r=>r.json()).then(function(j){
+      if(!j.ok)setStatus(j.error||"任务启动失败",false);
+    });
+}
+function ispFlash(){
+  if(!connected){setStatus("ISP 需先连接串口（发 ISP 命令用）",false);return;}
+  job("flash_isp");
+}
+setInterval(function(){
+  fetch("/api/job").then(r=>r.json()).then(function(j){
+    var el=$("joblog");
+    var txt=(j.log||[]).join("\n");
+    if(el.textContent!==txt){el.textContent=txt||"$ 输出日志…";el.scrollTop=el.scrollHeight;}
+  });
+},800);
+
+window.onload=function(){refreshPorts();};
+</script>
+</body>
+</html>

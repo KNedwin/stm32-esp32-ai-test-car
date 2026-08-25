@@ -91,6 +91,27 @@ void param_cli_execute(char *line)
                    (unsigned long)(g_params.autostop_ms/1000),
                    g_params.slowwin_count, g_params.rule_count);
         }
+        else if (!strcmp(k, "win"))          /* 每窗口一行: > W i start_s dur_s pct */
+        {
+            for (uint8_t i = 0; i < g_params.slowwin_count; i++)
+                Dbg_Printf("> W %u %lu %lu %u\r\n", i,
+                           (unsigned long)(g_params.slowwins[i].start_ms / 1000),
+                           (unsigned long)(g_params.slowwins[i].dur_ms / 1000),
+                           g_params.slowwins[i].pct);
+            respond("END");
+        }
+        else if (!strcmp(k, "rule"))         /* 每规则一行: > R i gbkhex cnt spk */
+        {
+            for (uint8_t i = 0; i < g_params.rule_count; i++)
+            {
+                Dbg_Printf("> R %u ", i);
+                for (uint8_t j = 0; j < g_params.rules[i].len; j++)
+                    Dbg_Printf("%02X", g_params.rules[i].word[j]);
+                Dbg_Printf(" %u %u\r\n", g_params.rules[i].count_req,
+                           g_params.rules[i].speak_en);
+            }
+            respond("END");
+        }
         else respond("ERR:key");
     }
     else if (!strcmp(cmd, "SET"))
