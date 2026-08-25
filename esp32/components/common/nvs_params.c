@@ -28,7 +28,7 @@ static const params_t PARAMS_DEFAULT = {
 
 params_t g_params;
 
-#define CLAMP_U32(v, lo, hi) ((v) < (lo) ? (lo) : ((v) > (hi) ? (hi) : (v)))
+#define CLAMP_U32(v, lo, hi) ((v) > (hi) ? (hi) : (v))
 
 /* 范围校验 + 钳制；返回被修正的字段数（0=原本合法） */
 int params_sanitize(params_t *p)

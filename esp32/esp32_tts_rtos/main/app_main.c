@@ -6,6 +6,7 @@
 #include "tts.h"
 #include "card_uart.h"
 #include "adc.h"
+#include "nvs_params.h"
 #include "rfid_task.h"
 #include "motor_task.h"
 
@@ -26,6 +27,28 @@ void app_main(void)
 	Card_Uart_Init();           /* 读卡 UART1 + 波特率切换 9600→115200 */
 	TTS_Init();                 /* 语音 UART2 */
 	ADC_Init();                 /* 电位器 ADC */
+
+	/* 运行时参数加载（NVS）+ 逻辑层时序/规则注入 */
+	params_init();
+	{
+		static motor_timing_t tm;   /* static：SetTiming 保存指针，须持久 */
+		uint8_t i;
+		tm.late_ms = g_params.late_ms;
+		tm.slow_ms = g_params.slow_ms;
+		tm.stop_ramp_ms = g_params.stop_ramp_ms;
+		tm.wait_ms = g_params.wait_ms;
+		tm.slowwin_count = g_params.slowwin_count;
+		for( i = 0; i < tm.slowwin_count && i < MOTOR_SLOWWIN_MAX; i++ )
+		{
+			tm.slowwin[i].start_ms = g_params.slowwins[i].start_ms;
+			tm.slowwin[i].dur_ms   = g_params.slowwins[i].dur_ms;
+			tm.slowwin[i].pct      = g_params.slowwins[i].pct;
+		}
+		MotorLogic_SetTiming(&tm);
+		RfidLogic_SetConfig((const rfid_rule_rt_t *)g_params.rules,
+							g_params.rule_count,
+							g_params.dedup_ms, g_params.count_interval_ms);
+	}
 
 	xTaskCreatePinnedToCore(RFID_Task, "rfid", 4096, NULL, 5, NULL, tskNO_AFFINITY);
 	xTaskCreatePinnedToCore(Motor_Task, "motor", 2048, NULL, 1, NULL, tskNO_AFFINITY);
