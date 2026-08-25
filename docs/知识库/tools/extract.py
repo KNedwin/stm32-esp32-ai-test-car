@@ -6,7 +6,7 @@
 """
 import json, os, re, shutil, sys, datetime
 
-ROOT = "<HOME>/项目/新能源小车语音播报"
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))  # 仓库根=脚本上三级, 自动定位
 KB = f"{ROOT}/docs/知识库"
 
 PROJECTS = [

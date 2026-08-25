@@ -1,6 +1,6 @@
 {
   "project_name": "stm32_rfid_tts_rtos",
-  "project_root": "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos",
+  "project_root": "./stm32/rfid_tts_rtos",
   "build_system": "cmake_cubemx",
   "target_device": "STM32F103C8T6",
   "flash": {
@@ -17,22 +17,22 @@
     "DEBUG"
   ],
   "include_paths": [
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Core/Inc",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Drivers/CMSIS/Include",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/include",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/.",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/USART",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/rfid_card",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/pwm",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/LED",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/ADC",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/hardware/DEBUG",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_rtos/Task"
+    "./stm32/rfid_tts_rtos/Core/Inc",
+    "./stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc",
+    "./stm32/rfid_tts_rtos/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
+    "./stm32/rfid_tts_rtos/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+    "./stm32/rfid_tts_rtos/Drivers/CMSIS/Include",
+    "./stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/include",
+    "./stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS",
+    "./stm32/rfid_tts_rtos/Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM3",
+    "./stm32/rfid_tts_rtos/.",
+    "./stm32/rfid_tts_rtos/hardware/USART",
+    "./stm32/rfid_tts_rtos/hardware/rfid_card",
+    "./stm32/rfid_tts_rtos/hardware/pwm",
+    "./stm32/rfid_tts_rtos/hardware/LED",
+    "./stm32/rfid_tts_rtos/hardware/ADC",
+    "./stm32/rfid_tts_rtos/hardware/DEBUG",
+    "./stm32/rfid_tts_rtos/Task"
   ],
   "business_sources": [
     {

@@ -1,6 +1,6 @@
 {
   "project_name": "esp32_tts_rtos",
-  "project_root": "<HOME>/项目/新能源小车语音播报/esp32/esp32_tts_rtos",
+  "project_root": "./esp32/esp32_tts_rtos",
   "build_system": "esp_idf",
   "target_device": "ESP32-S3",
   "flash": {
@@ -16,7 +16,7 @@
     "IDF_VER=\"v6.0.2\""
   ],
   "include_paths": [
-    "<HOME>/项目/新能源小车语音播报/esp32/esp32_tts_rtos/main"
+    "./esp32/esp32_tts_rtos/main"
   ],
   "business_sources": [
     {

@@ -163,7 +163,7 @@ ESP32-S3          电脑
 ### 环境激活（每次编译前必须执行）
 
 ```bash
-source <HOME>/.espressif/tools/activate_idf_v6.0.2.sh
+source ~/.espressif/tools/activate_idf_v6.0.2.sh
 ```
 
 ### 编译命令

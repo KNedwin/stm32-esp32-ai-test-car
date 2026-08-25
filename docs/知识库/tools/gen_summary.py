@@ -5,7 +5,7 @@ SUMMARY 按 13_doc_summary 格式；验收包按 15_verification_package（Part1
 """
 import os, json
 
-KB = "<HOME>/项目/新能源小车语音播报/docs/知识库"
+KB = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # docs/知识库=脚本上两级, 自动定位
 
 def ctx(name):
     with open(f"{KB}/{name}/_v10_context/project_context.json", encoding="utf-8") as f:

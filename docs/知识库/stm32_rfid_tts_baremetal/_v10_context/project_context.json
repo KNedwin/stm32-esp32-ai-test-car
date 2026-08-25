@@ -1,6 +1,6 @@
 {
   "project_name": "stm32_rfid_tts_baremetal",
-  "project_root": "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal",
+  "project_root": "./stm32/rfid_tts_baremetal",
   "build_system": "cmake_cubemx",
   "target_device": "STM32F103C8T6",
   "flash": {
@@ -17,19 +17,19 @@
     "DEBUG"
   ],
   "include_paths": [
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/Core/Inc",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/Drivers/STM32F1xx_HAL_Driver/Inc",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/Drivers/CMSIS/Include",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/.",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/hardware/USART",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/hardware/rfid_card",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/hardware/pwm",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/hardware/LED",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/hardware/ADC",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/hardware/DEBUG",
-    "<HOME>/项目/新能源小车语音播报/stm32/rfid_tts_baremetal/Task"
+    "./stm32/rfid_tts_baremetal/Core/Inc",
+    "./stm32/rfid_tts_baremetal/Drivers/STM32F1xx_HAL_Driver/Inc",
+    "./stm32/rfid_tts_baremetal/Drivers/STM32F1xx_HAL_Driver/Inc/Legacy",
+    "./stm32/rfid_tts_baremetal/Drivers/CMSIS/Device/ST/STM32F1xx/Include",
+    "./stm32/rfid_tts_baremetal/Drivers/CMSIS/Include",
+    "./stm32/rfid_tts_baremetal/.",
+    "./stm32/rfid_tts_baremetal/hardware/USART",
+    "./stm32/rfid_tts_baremetal/hardware/rfid_card",
+    "./stm32/rfid_tts_baremetal/hardware/pwm",
+    "./stm32/rfid_tts_baremetal/hardware/LED",
+    "./stm32/rfid_tts_baremetal/hardware/ADC",
+    "./stm32/rfid_tts_baremetal/hardware/DEBUG",
+    "./stm32/rfid_tts_baremetal/Task"
   ],
   "business_sources": [
     {

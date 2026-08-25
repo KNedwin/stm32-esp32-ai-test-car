@@ -5,7 +5,7 @@
 """
 import json, os
 
-KB = "<HOME>/项目/新能源小车语音播报/docs/知识库"
+KB = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # docs/知识库=脚本上两级, 自动定位
 
 STM32_COMMON = {
     "device": "STM32F103C8T6",

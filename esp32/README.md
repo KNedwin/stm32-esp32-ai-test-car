@@ -1,158 +1,157 @@
 # ESP32-S3 读卡语音播报控制系统（STM32 项目复刻）
 
-本项目是 `stm32/` 下两个 STM32 工程（读卡 + TTS 播报 + 电机控制）的 **ESP32-S3 复刻版**，包含两个并列项目：
+本项目是 stm32/ 下两个 STM32 工程的 **ESP32-S3 复刻版**，包含两个并列项目：
 
 | 目录 | 版本 | 对应 STM32 工程 | 说明 |
 |---|---|---|---|
-| `esp32_tts_rtos/` | RTOS 版 | `stm32/rfid_tts_rtos` | 两个 FreeRTOS 任务（读卡任务 + 电机任务） |
-| `esp32_tts_baremetal/` | 裸机版 | `stm32/rfid_tts_baremetal` | 单任务超级循环（顺序执行两个状态机） |
+| esp32_tts_rtos/ | RTOS 版 | stm32/rfid_tts_rtos | 双 FreeRTOS 任务（读卡任务 + 电机任务） |
+| esp32_tts_baremetal/ | 裸机版 | stm32/rfid_tts_baremetal | 单任务超级循环（顺序执行两个状态机） |
 
-功能规格与 STM32 版**完全一致**（晚启动/缓启动、实时读卡 + LED 保持、TTS 播报去重、定时降速、多触发词停车、电位器自动停止、数据输出口、HardFault 等效保护）。
+基础功能规格与 STM32 版完全一致，并新增 ESP32 特有能力：**WiFi 配网 + 网页参数配置、RGB LED 状态流转、任意卡内容中文显示（GBK⇄UTF-8 转换层）**。
 
 ---
 
-## 1. 开发环境（已就绪）
+## 1. 功能清单
+
+| # | 功能 | 说明 |
+|---|---|---|
+| 1~5 | 同 STM32 版 | 晚启动缓启动 / 实时读卡+LED 保持 / TTS 播报去重（上电提示音 <I>7）/ 定时降速（**多段减速窗口 ×8**）/ 多触发词停车 |
+| 6 | 参数化自动停车 | 总时长网页可配（默认 300s，范围 10~1000s），NVS 掉电保存（原电位器方案已退役） |
+| 7 | WiFi 配网模式 | **快速连按 3 次 RST** 进入：RGB LED 蓝色快闪 → 开热点 EV-Car-Setup（WPA2，密码 12345678）→ 浏览器打开 http://192.168.4.1 修改全部参数 → 保存重启生效 |
+| 8 | RGB LED 状态流转 | 刷卡🟢绿 → 停车减速🟡黄 → 静止等待🔴红 → 重新缓启动🟠橙 → 正常运行⚪白 |
+| 9 | 中文显示层 | 任意卡内 GBK 内容经内置 GB2312 表转 UTF-8 串口输出，不再限于预设触发词 |
+| 10 | 系统保护 | 崩溃自动重启（看门狗）；崩溃复位不计入配网手势计数 |
+
+> 配网手势防误触：每次上电 NVS 计数 +1，持续运行 10 秒自动清零；仅正常上电/RST 计数，PANIC/看门狗复位不累计；配置模式空闲超时自动退出重启。
+
+---
+
+## 2. 开发环境
 
 | 项 | 值 |
 |---|---|
-| ESP-IDF | **v6.0.2**（`IDF_PATH=<HOME>/.espressif/v6.0.2/esp-idf`） |
-| 激活脚本 | `<HOME>/.espressif/tools/activate_idf_v6.0.2.sh` |
-| 目标芯片 | **ESP32-S3**（Xtensa，512KB SRAM，双核） |
-| 编译工具 | `idf.py`（ESP-IDF 自带） |
+| ESP-IDF | v6.0.2 |
+| 激活脚本 | ~/.espressif/tools/activate_idf_v6.0.2.sh（按本机安装位置调整） |
+| 目标芯片 | ESP32-S3（Xtensa，512KB SRAM，双核） |
 
 **每次编译前必须激活环境**：
 ```bash
-source <HOME>/.espressif/tools/activate_idf_v6.0.2.sh
-```
-
-> ⚠️ **中文路径说明**：ESP-IDF 默认使用 picolibc，其 gcc specs 机制**不支持中文路径**（本项目位于含中文的目录，直接编译会报 `cannot read spec file`）。两版项目的 `sdkconfig.defaults` 已配置 `CONFIG_LIBC_NEWLIB=y`（关闭 picolibc）绕开该问题，**请勿删除该配置**。
-
-**编译/烧录/监视**：
-```bash
+source ~/.espressif/tools/activate_idf_v6.0.2.sh    # 路径按本机 IDF 安装调整
 cd esp32/esp32_tts_rtos          # 或 esp32_tts_baremetal
-idf.py set-target esp32s3        # 首次生成工程时执行一次
-idf.py build                     # 编译
-idf.py -p /dev/ttyACM0 flash     # 烧录（USB-Serial-JTAG 口）
-idf.py -p /dev/ttyACM0 monitor   # 串口监视（USB-Serial-JTAG console）
+idf.py set-target esp32s3        # 首次执行一次
+idf.py build
+idf.py -p /dev/ttyACM0 flash monitor                 # USB-Serial-JTAG 口
 ```
+
+> ⚠️ 中文路径说明：IDF 默认 picolibc 不支持中文路径，两版 sdkconfig.defaults 已配置 CONFIG_LIBC_NEWLIB=y 绕开，**请勿删除**。
 
 ---
 
-## 2. 硬件接线表（ESP32-S3，引脚可在各项目 config.h 修改）
+## 3. 硬件接线表（引脚统一在 components/common/pins.h 修改，两版共用）
 
 | 功能 | 引脚 | 外设 | 参数 |
 |---|---|---|---|
 | 读卡模块 U13T | GPIO10 = TX，GPIO11 = RX | UART1 | 9600，初始化后切 115200 |
-
-> 引脚与 UART/ADC/LEDC 实例统一在 `esp32/components/common/pins.h` 修改（两版共用）。
 | 语音模块 CN-TTS | GPIO12 = TX，GPIO13 = RX | UART2 | 9600，8N1 |
-| 调试输出（console） | 原生 USB 口 | **USB-Serial-JTAG** | 免 USB 转 TTL，`idf.py monitor` 直接查看 |
-| 电机 PWM 输出 1 | GPIO4 | LEDC 通道 0 | 20kHz，10-bit，互补双路 |
-| 电机 PWM 输出 2 | GPIO5 | LEDC 通道 1 | 同上 |
-| 电位器（停车时间调节） | GPIO1 | SARADC1 通道 0 | 12-bit |
-| LED 指示灯（三路并联兼容） | GPIO2、GPIO8、GPIO9 | GPIO 推挽 | 低电平点亮，初始高电平 |
-| USB-Serial-JTAG | 原生 USB 口 | console 调试输出 | `idf.py monitor` 查看 |
+| 电机 PWM 输出 1 / 2 | GPIO4 / GPIO5 | LEDC 通道 0 / 1 | 20kHz，10-bit，差分互补（转向=角色交换） |
+| RGB LED | ws2812（见 pins.h） | RMT 驱动 | 状态流转配色见 §1 功能 8 |
+| LED 指示灯（兼容） | GPIO2、GPIO8、GPIO9 | GPIO 推挽 | 低电平点亮 |
+| USB-Serial-JTAG | 原生 USB 口 | console | idf.py monitor 直接查看，免 USB 转 TTL |
 
-接线注意（与 STM32 版相同）：
-- 串口均 **TX 接对方 RX、RX 接对方 TX**（交叉连接）
-- **TTS 模块必须 5V 供电**（4.5~5.5V，播报峰值 320mA，需独立供电/稳压）；U13T 供电 3.0~5.5V
-- 模块 5V 供电时其 TX 高电平接近 5V：ESP32-S3 大部分 GPIO **5V 容忍（FT）**，GPIO10/11/12/13 均为 FT，可直接连接
-- 所有模块 GND 与 ESP32 共地
+> 电位器（GPIO1/SARADC1）已退役：GPIO1 悬空即可，ADC 采样代码已从电机流程移除（components/common/adc.c 为遗留文件，无调用方）。
+
+接线注意：串口 TX↔RX 交叉；CN-TTS 必须 5V 独立供电（峰值 320mA）；U13T 供电 3.0~5.5V；GPIO10/11/12/13 均 5V 容忍（FT）可直连；共地。UART0（GPIO43/44）不占用，可留他用。
 
 ---
 
-## 3. 两版实现对比
+## 4. WiFi 配网与网页参数
 
-| 对比项 | esp32_tts_rtos（RTOS 版） | esp32_tts_baremetal（裸机版） |
+- 触发：5 秒内连续通断电/按 RST 3 次 → 蓝色快闪 → SoftAP「EV-Car-Setup」（WPA/WPA2，密码 12345678，IP 192.168.4.1）
+- 网页（webpage.html 内嵌单文件）：时间字段单位秒（支持一位小数）；电机转向下拉框；减速窗口可增删行（JS 校验不重叠并按时间排序）；触发词直接输汉字、旁实时预览 GBK hex；提交前范围预校验
+- API：GET /api/params 回显（触发词转中文）；POST /api/params 保存（UTF-8→GBK 转换 + sanitize + NVS）；POST /api/restart 保存并重启生效
+- 参数层 nvs_params：params_t 全量参数（电机时序/转向/减速窗口×8/规则×8/LED/去重/轮询/autostop_ms），NVS 无值回落 config.h 默认宏
+
+---
+
+## 5. 两版实现对比
+
+| 对比项 | esp32_tts_rtos | esp32_tts_baremetal |
 |---|---|---|
-| 调度 | 两个 FreeRTOS 任务并行（`xTaskCreate`） | `app_main` 单任务 `while(1)` 顺序执行 |
-| 读卡流程 | `RFID_Task`（栈 4096B，优先级 5） | `RFID_Process()`（主循环每圈调用，非阻塞） |
-| 电机流程 | `Motor_Task`（栈 2048B，优先级 1） | `Motor_Process()`（同上） |
-| 延时 | `vTaskDelay` 可阻塞 | `esp_timer` 时间差非阻塞 |
-| 实时性 | TTS 发送只卡自己任务 | TTS 发送期间主循环停顿（毫秒级，可接受） |
-| 内存 | S3 512KB SRAM，无压力 | 更省 |
+| 调度 | 两个 FreeRTOS 任务（xTaskCreate） | app_main 单任务 while(1) |
+| 读卡/电机流程 | RFID_Task（栈4096B，优先级5）、Motor_Task（栈2048B，优先级1） | RFID_Process() / Motor_Process() 主循环调用 |
+| 延时 | vTaskDelay 可阻塞 | esp_timer 时间差非阻塞 |
+| 实时性 | TTS 发送只卡自己任务 | TTS 发送期间主循环毫秒级停顿（可接受） |
 
-> 注：ESP-IDF 内建 FreeRTOS，即使"裸机版"也运行在调度器上（app_main 本身就是任务）；两版差异体现在**代码组织方式**（多任务 vs 超级循环），与 STM32 两版的对位关系一致。
+> 注：ESP-IDF 内建 FreeRTOS，「裸机版」同样运行在调度器上；两版差异仅在代码组织方式。两版 main 仅允许 4 组差异文件（app_main + rfid/motor 任务或进程版），漂移由 run_tests.sh 检查。
 
 ---
 
-## 4. 与 STM32 版的代码复用关系
+## 6. 与 STM32 版的代码复用关系
 
-| 模块 | 复用方式 |
+| 模块 | 说明 |
 |---|---|
-| `config.h` | 逐字移植（触发词规则表、A~I 时序参数，全部一致） |
-| `rfid_logic.c` | **逐字相同**（纯逻辑、无硬件依赖）→ 两 ESP32 项目共用，主机单元测试直接复用 |
-| 触发词/去重/计数决策 | 已封装在 rfid_logic，零改动 |
-| 电机状态机逻辑 | 移植（绝对计时基准从 `HAL_GetTick` 换成 `esp_timer_get_time()/1000`） |
-| U13T 帧解析状态机 | 移植（含长度上限防护、"仅 0x91 产生事件"等修复），UART 底层换 ESP-IDF 驱动 |
-| TTS 发送 | STM32 版用 printf→USART2；**ESP32 版改用 `uart_write_bytes(UART2)` 直接发送**，printf 归还给 console 调试输出（角色更清晰） |
-| 数据输出协议 | `[SYS]/[RFID]/[LED]/[MOTOR]` 格式完全一致 |
-| 主机测试 | `stm32/tests/` 的 rfid_logic 测试扩展到 esp32 版路径；新增 esp32/tests/ 帧解析测试 |
+| config.h | 宏保留作**默认值来源**（nvs_params 无值时回落）；运行时一切读 g_params |
+| rfid_logic.c / motor_logic.c | 与 STM32 版逐字相同（Setter 注入式纯逻辑，四版共享，主机可测） |
+| card_parse.c | U13T 帧解析独立纯逻辑（含长度上限防护、仅 0x91 产生事件），ESP32 特有组件 |
+| gbk_utf8.c(+table) | GB2312⇄UTF-8 映射表（约15KB const 入 Flash），网页回显与串口中文显示共用 |
+| nvs_params / param 体系 | STM32 版已做**同构实现**（存储介质不同：Flash 末页 vs NVS） |
+| tts.c | uart_write_bytes(UART2) 直发；上电提示音 <I>7（试听选定） |
+| 数据输出协议 | [SYS]/[RFID]/[LED]/[MOTOR] 格式与 STM32 版一致 |
 
 ---
 
-## 5. 目录结构（规划）
+## 7. 目录结构
 
-```
+```text
 esp32/
-├── README.md                          # 本文件
-├── components/common/                 # ★ 共享业务组件（两版唯一维护点）
-│   ├── CMakeLists.txt
-│   ├── config.h                       # 全部可调参数（与 STM32 版参数一致）
-│   ├── pins.h                         # GPIO 引脚 + UART/ADC/LEDC 实例映射
-│   ├── rfid_logic.c|h                 # 触发词/去重纯逻辑（与 STM32 版逐字相同）
-│   ├── motor_logic.c|h                # 电机状态机纯逻辑（四版共享，主机可测）
-│   ├── card_uart.c|h                  # U13T 协议 + UART1 驱动（帧解析在 card_parse）
-│   ├── card_parse.c|h                 # 帧解析纯逻辑（主机可测）
-│   ├── tts.c|h                        # TTS 发送 + 默认设置（UART2）
-│   ├── motor_drv.c|h                  # LEDC 双通道互补电机驱动
-│   ├── led.c|h  adc.c|h  debug.c|h    # LED / 电位器 / 调试输出
-├── esp32_tts_rtos/                    # RTOS 版（仅应用层差异文件）
-│   ├── docs/01-项目说明.md
-│   ├── CMakeLists.txt                 # EXTRA_COMPONENT_DIRS 指向 ../components
-│   └── main/
-│       ├── CMakeLists.txt             # SRCS：app_main + rfid_task + motor_task
-│       ├── app_main.c                 # 入口：初始化 + 创建两任务
-│       ├── rfid_task.c|h              # 读卡任务（状态机）
-│       └── motor_task.c|h             # 电机任务（薄壳：喂 motor_logic）
-├── esp32_tts_baremetal/               # 裸机版（app_main + rfid_process + motor_process）
-│   └── docs/01-项目说明.md
-└── tests/                             # 主机单元测试
-    ├── run_tests.sh                   # 含共享文件漂移检查
-    ├── test_logic.c                   # rfid_logic
-    ├── test_card_parse.c              # card_parse 帧解析
-    └── test_motor_logic.c             # motor_logic 电机状态机（真实 C 代码）
+├── README.md                        # 本文件
+├── docs/WiFi配置模式实施计划.md      # 配网/参数层/网页 设计与验收清单
+├── components/common/               # ★ 共享业务组件（两版唯一维护点）
+│   ├── config.h / pins.h            # 默认参数宏 / 引脚与外设实例映射
+│   ├── rfid_logic / motor_logic     # 纯逻辑层（四版逐字共享）
+│   ├── card_uart / card_parse       # U13T 协议驱动 / 帧解析纯逻辑
+│   ├── tts / motor_drv / led / debug# TTS发送 / LEDC电机 / LED / 调试
+│   ├── gbk_utf8 (+_table)           # GB2312⇄UTF-8 转换
+│   ├── nvs_params                   # 运行时参数层（NVS）
+│   ├── config_mode / wifi_ap / web_server / webpage.html   # 配网三件套+页面
+│   ├── ws2812                       # RGB LED（RMT）
+│   └── adc                          # （遗留，无调用方）
+├── esp32_tts_rtos/main/             # app_main + rfid_task + motor_task
+├── esp32_tts_baremetal/main/        # app_main + rfid_process + motor_process
+└── tests/                           # 主机单元测试 run_tests.sh
 ```
 
 ---
 
-## 6. 测试（编译前必跑）
+## 8. 主机单元测试（编译前必跑）
 
 ```bash
 cd esp32/tests && ./run_tests.sh
 ```
 
-> 注：调试输出经 USB-Serial-JTAG（原生 USB 口），UART0（GPIO43/44）不占用，可留作他用。
-- `test_logic.c`：触发词矩阵/计数/去重（复用 stm32 测试，路径指向 esp32 项目）
-- `test_card_esp.c`：U13T 帧解析（主机编译，无硬件依赖）
+当前 **87 项全绿 + 漂移检查 OK**：rfid_logic 32 + card_parse 14 + motor_logic 30 + gbk_utf8 11。
 
 ---
 
-## 7. 文档导航
+## 9. 文档导航
 
-1. `esp32_tts_rtos/docs/01-项目说明.md` —— RTOS 版：硬件映射、架构、移植说明、构建步骤、验收清单
-2. `esp32_tts_baremetal/docs/01-项目说明.md` —— 裸机版：同上（单任务超级循环）
-
-功能规格的完整定义（A~I 参数、触发词行为矩阵、停车时序）与 STM32 版相同，以 `stm32/` 下两版 `docs/02-项目说明.md` 为准；本文档只重述要点并聚焦 ESP32 移植差异。
+| 文档 | 内容 |
+|---|---|
+| esp32_tts_rtos/docs/01-项目说明.md（裸机版同名） | 硬件映射、架构、构建步骤、验收清单 |
+| esp32/docs/WiFi配置模式实施计划.md | 配网手势/参数层/网页 API 设计与集成验收清单 |
+| stm32/docs/02-项目说明.md | 功能规格权威定义（A~I 参数、触发词行为矩阵、停车时序） |
+| stm32/docs/串口配置模式实施计划.md | STM32 参数化对齐方案（CLI/上位机/ISP） |
+| docs/知识库/esp32_tts_rtos（及另三项目） | 知识库 00~11 + SUMMARY + 验收包 |
 
 ---
 
-## 8. 设计决策（已确认并实施）
+## 10. 设计决策（已确认并实施）
 
 | # | 决策项 | 已实施 |
 |---|---|---|
-| 1 | 电机驱动 | 方案 A：LEDC 双通道互补（GPIO4/5），接口与 STM32 版一致 |
+| 1 | 电机驱动 | LEDC 双通道互补（GPIO4/5），20kHz 10-bit，支持正反转 |
 | 2 | 调试输出 | USB-Serial-JTAG console（sdkconfig.defaults 配置） |
-| 3 | 项目名 | `esp32_tts_rtos` / `esp32_tts_baremetal` |
-| 4 | 引脚 | 见第 2 节表格（GPIO 与外设实例统一在 `components/common/pins.h` 修改） |
-| 5 | 电机 PWM 频率 | 20kHz，10-bit |
+| 3 | 项目名 | esp32_tts_rtos / esp32_tts_baremetal |
+| 4 | 配置入口 | 连按 3 次 RST（等效快速通断电），SoftAP + HTTP 网页 |
+| 5 | 参数化 | nvs_params 运行时层，config.h 宏转为默认值；自动停车网页化（电位器退役） |
+| 6 | 多段减速 | slowwins[8] 列表，SLOW 仅从 RUN 进入，STOPPING/WAIT/RAMPUP 优先级更高 |

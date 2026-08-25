@@ -6,7 +6,7 @@
 """
 import os
 
-KB = "<HOME>/项目/新能源小车语音播报/docs/知识库"
+KB = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))  # docs/知识库=脚本上两级, 自动定位
 
 # ---------------- 共享内容模板 ----------------
 
@@ -103,7 +103,7 @@ PARAMS = """| 参数 | 值 | 可改性 | 含义 | 来源 |
 
 FAQ_ITEMS = [
     ("构建与烧录", "如何编译并烧录程序？",
-     "STM32：在工程目录执行 `cmake -B build && cmake --build build`，用 `st-flash write build/<工程名>.bin 0x08000000` 烧录。ESP32：先 `source <HOME>/.espressif/tools/activate_idf_v6.0.2.sh` 激活环境，再 `idf.py build`、`idf.py -p /dev/ttyACM0 flash monitor`。"),
+     "STM32：在工程目录执行 `cmake -B build && cmake --build build`，用 `st-flash write build/<工程名>.bin 0x08000000` 烧录。ESP32：先 `source ~/.espressif/tools/activate_idf_v6.0.2.sh` 激活环境，再 `idf.py build`、`idf.py -p /dev/ttyACM0 flash monitor`。"),
     ("构建与烧录", "编译报 `cannot read spec file`（仅 ESP32）？",
      "ESP-IDF 默认 picolibc 的 gcc specs 机制不支持中文路径。本项目 sdkconfig.defaults 已配置 `CONFIG_LIBC_NEWLIB=y` 绕开，请勿删除该配置。"),
     ("构建与烧录", "CubeMX 重新生成工程后编译报错或行为异常（仅 STM32）？",
@@ -993,7 +993,7 @@ esp32/
 ## 关键提醒
 - 共享组件在 ../components/common（两版唯一维护点，run_tests.sh 有漂移检查）
 - 中文路径编译依赖 sdkconfig.defaults 的 CONFIG_LIBC_NEWLIB=y（勿删）
-- 每次编译前先 `source <HOME>/.espressif/tools/activate_idf_v6.0.2.sh`
+- 每次编译前先 `source ~/.espressif/tools/activate_idf_v6.0.2.sh`
 """
     intro = f"""# 项目介绍
 
@@ -1028,7 +1028,7 @@ esp32/
 ## 6. 构建 / 烧录 / 调试
 ```bash
 # 激活环境（每次编译前）
-source <HOME>/.espressif/tools/activate_idf_v6.0.2.sh
+source ~/.espressif/tools/activate_idf_v6.0.2.sh
 # 构建
 cd esp32/{name} && idf.py build
 # 烧录 + 监视（USB-Serial-JTAG）
