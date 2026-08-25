@@ -20,7 +20,19 @@ typedef struct
     uint32_t last_speak_tick;                        /* 上次播报时刻 */
 } rfid_logic_t;
 
-/* 触发词规则数（由 TRIGGER_RULES 表 sizeof 推导） */
+/* ============ 运行时规则注入（网页配置用，默认=TRIGGER_RULES 宏） ============ */
+typedef struct {
+    uint8_t  word[RFID_BLOCK_SIZE];   /* GBK 字节（运行时可变副本） */
+    uint8_t  len;                     /* 1~16 */
+    uint8_t  count_req;               /* 1~10 */
+    uint8_t  speak_en;                /* 0/1 */
+} rfid_rule_rt_t;
+
+/* 注入规则表与去重/计数窗口；不调用则使用 TRIGGER_RULES 编译期默认 */
+void RfidLogic_SetConfig(const rfid_rule_rt_t *rules, uint8_t count,
+                         uint32_t dedup_ms, uint32_t interval_ms);
+
+/* 触发词规则数（当前生效数量） */
 uint8_t RfidLogic_RuleCount(void);
 
 /* 初始化触发/去重状态（上电调用一次） */

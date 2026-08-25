@@ -55,6 +55,7 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Task/motor_logic.c
     Task/rfid_task.c
     Task/motor_control_task.c
+    config/nvs_params.c
 )
 
 # Add include paths
@@ -67,6 +68,7 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/LED
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/ADC
     ${CMAKE_CURRENT_SOURCE_DIR}/Task
+    ${CMAKE_CURRENT_SOURCE_DIR}/config
 )
 
 # Add project symbols (macros)

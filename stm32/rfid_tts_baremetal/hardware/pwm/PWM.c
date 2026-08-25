@@ -1,5 +1,12 @@
 #include "PWM.h"
 
+static uint8_t s_motor_dir = 0;   /* 0=正转 1=反转 */
+
+void Motor_SetDirection( uint8_t dir )
+{
+	s_motor_dir = dir & 1;
+}
+
 extern TIM_HandleTypeDef PWM_HAL_TIMX;
 
 /* PWM 初始化：启动双通道（案例原样） */
@@ -39,9 +46,14 @@ void Motor_Control( uint16_t speed )
 		PWM_DutySet( PWM_TIMX, 1, 999 );
 		PWM_DutySet( PWM_TIMX, 2, 999 );
 	}
-	else
-	{
+	else if( s_motor_dir == 0 )
+	{	/* 正转：CH1 低 + CH2 脉宽 */
 		PWM_DutySet( PWM_TIMX, 1, 0 );
 		PWM_DutySet( PWM_TIMX, 2, speed );
+	}
+	else
+	{	/* 反转：CH1 脉宽 + CH2 低 */
+		PWM_DutySet( PWM_TIMX, 1, speed );
+		PWM_DutySet( PWM_TIMX, 2, 0 );
 	}
 }

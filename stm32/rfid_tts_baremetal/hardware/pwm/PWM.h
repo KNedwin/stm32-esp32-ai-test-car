@@ -11,5 +11,6 @@
 void PWM_Init( void );
 void PWM_DutySet( TIM_TypeDef* timx, uint8_t channel, uint16_t duty );
 void Motor_Control( uint16_t speed );
+void Motor_SetDirection( uint8_t dir );   /* 0=正转(CH1低+CH2脉宽) 1=反转(交换) */
 
 #endif

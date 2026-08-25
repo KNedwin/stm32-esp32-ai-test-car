@@ -55,10 +55,12 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Task/motor_logic.c
     Task/rfid_process.c
     Task/motor_process.c
+    config/nvs_params.c
 )
 
 # Add include paths
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE
+    ${CMAKE_CURRENT_SOURCE_DIR}/config
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/USART
     ${CMAKE_CURRENT_SOURCE_DIR}/hardware/DEBUG
