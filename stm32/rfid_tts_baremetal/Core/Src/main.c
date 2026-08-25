@@ -32,6 +32,9 @@
 #include "Debug.h"
 #include "rfid_process.h"
 #include "motor_process.h"
+#include "nvs_params.h"
+#include "param_cli.h"
+#include "isp_jump.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -105,6 +108,9 @@ int main(void)
   PWM_Init();                   /* 启动 PWM */
   Motor_Control( 0 );           /* 电机初始速度 0 */
   Dbg_Init();                   /* 数据输出串口（输出 [SYS] boot） */
+  params_init();                /* 读 Flash 末页参数（失败回落默认，须先于 Motor_Init） */
+  params_apply();               /* 注入电机时序+触发词规则 */
+  ParamCli_Init();              /* 使能 USART3 接收（串口配置模式） */
   Motor_Init();                 /* 电位器采样 + 电机参数初始化（阻塞约20ms） */
   RFID_Init();                  /* TTS 设置 + 读卡参数初始化（阻塞约0.9s） */
   /* 读卡串口接收中断已在 usart.c USART1_Init 2 区使能（防 ORE），此处不再重复 */
@@ -116,6 +122,12 @@ int main(void)
   {
     RFID_Process();    /* 读卡、播报、LED、去重、触发（非阻塞状态机） */
     Motor_Process();   /* 电机时序（非阻塞状态机） */
+    ParamCli_Poll();   /* 串口配置模式行解析 */
+    if( ParamCli_ShouldEnterIsp() )   /* ISP 命令：留足应答时间后软跳 Bootloader */
+    {
+      HAL_Delay(100);
+      ISP_Enter();
+    }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */

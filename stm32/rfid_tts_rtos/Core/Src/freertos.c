@@ -25,7 +25,9 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
-
+#include "nvs_params.h"
+#include "param_cli.h"
+#include "isp_jump.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -84,7 +86,9 @@ void vApplicationGetIdleTaskMemory( StaticTask_t **ppxIdleTaskTCBBuffer, StackTy
   */
 void MX_FREERTOS_Init(void) {
   /* USER CODE BEGIN Init */
-
+  params_init();          /* 读 Flash 末页参数（失败回落默认，先于所有任务） */
+  params_apply();         /* 注入电机时序+触发词规则 */
+  ParamCli_Init();        /* 使能 USART3 接收（串口配置模式） */
   /* USER CODE END Init */
 
   /* USER CODE BEGIN RTOS_MUTEX */
@@ -105,7 +109,7 @@ void MX_FREERTOS_Init(void) {
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 512);  /* 512字: CLI解析+格式化打印 */
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -130,10 +134,16 @@ void MX_FREERTOS_Init(void) {
 void StartDefaultTask(void const * argument)
 {
   /* USER CODE BEGIN StartDefaultTask */
-  /* Infinite loop */
+  /* 主循环：串口配置模式轮询（USART3 行协议，10ms 节拍） */
   for(;;)
   {
-    osDelay(1);
+    ParamCli_Poll();
+    if( ParamCli_ShouldEnterIsp() )   /* ISP 命令：留足应答时间后软跳 Bootloader */
+    {
+      osDelay(100);
+      ISP_Enter();
+    }
+    osDelay(10);
   }
   /* USER CODE END StartDefaultTask */
 }

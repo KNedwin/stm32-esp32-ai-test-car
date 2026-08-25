@@ -56,6 +56,8 @@ target_sources(${CMAKE_PROJECT_NAME} PRIVATE
     Task/rfid_task.c
     Task/motor_control_task.c
     config/nvs_params.c
+    config/param_cli.c
+    config/isp_jump.c
 )
 
 # Add include paths

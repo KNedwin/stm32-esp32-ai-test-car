@@ -1,5 +1,7 @@
 #include "nvs_params.h"
 #include "config.h"
+#include "motor_logic.h"
+#include "rfid_logic.h"
 #include "stm32f1xx_hal.h"
 #include <string.h>
 
@@ -27,6 +29,38 @@ static const params_t PARAMS_DEFAULT = {
 };
 
 params_t g_params;
+
+/* 将 g_params 注入共享逻辑层（电机时序 + 触发词规则）。
+ * 上电 params_init 后调用一次；CLI 修改参数后再次调用即时生效。 */
+void params_apply(void)
+{
+    motor_timing_t tm;
+    rfid_rule_rt_t rules_rt[8];
+    uint8_t i;
+
+    tm.late_ms       = g_params.late_ms;
+    tm.slow_ms       = g_params.slow_ms;
+    tm.stop_ramp_ms  = g_params.stop_ramp_ms;
+    tm.wait_ms       = g_params.wait_ms;
+    tm.slowwin_count = g_params.slowwin_count;
+    for( i = 0; i < g_params.slowwin_count && i < MOTOR_SLOWWIN_MAX; i++ )
+    {
+        tm.slowwin[i].start_ms = g_params.slowwins[i].start_ms;
+        tm.slowwin[i].dur_ms   = g_params.slowwins[i].dur_ms;
+        tm.slowwin[i].pct      = g_params.slowwins[i].pct;
+    }
+    MotorLogic_SetTiming(&tm);
+
+    for( i = 0; i < g_params.rule_count && i < 8u; i++ )
+    {
+        memcpy(rules_rt[i].word, g_params.rules[i].word, RFID_BLOCK_SIZE);
+        rules_rt[i].len       = g_params.rules[i].len;
+        rules_rt[i].count_req = g_params.rules[i].count_req;
+        rules_rt[i].speak_en  = g_params.rules[i].speak_en;
+    }
+    RfidLogic_SetConfig(rules_rt, g_params.rule_count,
+                        g_params.dedup_ms, g_params.count_interval_ms);
+}
 
 #define PARAMS_PAGE_ADDR 0x0800FC00UL
 #define PARAMS_MAGIC     0xA55A

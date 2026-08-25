@@ -42,6 +42,8 @@ extern params_t g_params;
 
 void params_init(void);              /* 读末页+CRC，失败回落默认 */
 int  params_save(void);              /* 擦页+写入+CRC，返回0=成功 */
+void params_apply(void);             /* g_params 注入逻辑层（上电/CLI改后调用） */
+void params_apply(void);             /* g_params 注入逻辑层（上电/CLI改后调用） */
 int  params_sanitize(params_t *p);   /* 范围钳制 */
 
 #endif /* __NVS_PARAMS_H */
